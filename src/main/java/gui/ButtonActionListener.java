@@ -1,6 +1,6 @@
 package gui;
 
-import hadoop.HdfsController;
+import hadoop.HadoopController;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
@@ -49,12 +49,12 @@ public class ButtonActionListener implements ActionListener {
 
             case Utility.ADD_FILE:
                 if (selectedFilePath != null) {
-                    HdfsController hdfsController = new HdfsController();
+                    HadoopController hadoopController = new HadoopController();
                     try {
-                        result = hdfsController.addFile(selectedFilePath);
-                        if (result == HdfsController.FILE_ADDED_SUCCESSFULLY) {
+                        result = hadoopController.addFile(selectedFilePath);
+                        if (result == HadoopController.FILE_ADDED_SUCCESSFULLY) {
                             pushMessage("HDFS => File added successfully");
-                        } else if (result == HdfsController.FILE_ALREADY_EXISTS) {
+                        } else if (result == HadoopController.FILE_ALREADY_EXISTS) {
                             pushMessage("HDFS => File already exists");
                         }
 

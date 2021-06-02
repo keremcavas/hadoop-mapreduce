@@ -4,10 +4,11 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.util.Progressable;
 
 import java.io.IOException;
 
-public class HdfsController {
+public class HadoopController {
 
     public static final int FILE_ADDED_SUCCESSFULLY = 0;
     public static final int FILE_ALREADY_EXISTS = 1;
@@ -15,7 +16,7 @@ public class HdfsController {
     private static final String CORE_SITE_PATH = "/usr/local/hadoop/etc/hadoop/core-site.xml";
     private static final String HDFS_SITE_PATH = "/usr/local/hadoop/etc/hadoop/hdfs-site.xml";
 
-    public HdfsController() {
+    public HadoopController() {
     }
 
     private FileSystem getFileSystem() throws IOException {
@@ -38,7 +39,12 @@ public class HdfsController {
             System.out.println("[INFO] File already exists in hdfs");
             return FILE_ALREADY_EXISTS;
         } else {
-            outputStream = hdfs.create(fileToAdd);
+            outputStream = hdfs.create(fileToAdd, new Progressable() {
+                @Override
+                public void progress() {
+
+                }
+            });
             outputStream.close();
             return FILE_ADDED_SUCCESSFULLY;
         }
