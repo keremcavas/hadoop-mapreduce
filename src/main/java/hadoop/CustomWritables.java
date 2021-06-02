@@ -1,7 +1,7 @@
 package hadoop;
 
-import javafx.util.Pair;
 import org.apache.hadoop.io.Writable;
+import utility.Pair;
 
 import java.io.DataInput;
 import java.io.DataOutput;

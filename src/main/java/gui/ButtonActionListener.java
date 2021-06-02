@@ -81,5 +81,6 @@ public class ButtonActionListener implements ActionListener {
         for (MessageListener messageListener : messageListeners) {
             messageListener.push(message);
         }
+        System.out.println("[MESSAGE] " + message);
     }
 }

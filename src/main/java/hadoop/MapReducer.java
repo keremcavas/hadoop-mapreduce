@@ -1,9 +1,9 @@
 package hadoop;
 
-import javafx.util.Pair;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
+import utility.Pair;
 
 import java.io.IOException;
 import java.util.*;
