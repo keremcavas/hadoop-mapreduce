@@ -29,6 +29,8 @@ public class ButtonActionListener implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         String command = e.getActionCommand();
 
+        HadoopController hadoopController = new HadoopController();
+
         switch (command) {
 
             case Utility.CHOOSE_FILE:
@@ -49,7 +51,6 @@ public class ButtonActionListener implements ActionListener {
 
             case Utility.ADD_FILE:
                 if (selectedFilePath != null) {
-                    HadoopController hadoopController = new HadoopController();
                     try {
                         result = hadoopController.addFile(selectedFilePath);
                         if (result == HadoopController.FILE_ADDED_SUCCESSFULLY) {
@@ -67,6 +68,20 @@ public class ButtonActionListener implements ActionListener {
                     pushMessage("HDFS => File have not chosen yet");
                 }
                 break;
+
+            case Utility.MAPREDUCE:
+                try {
+                    hadoopController.mapreduce();
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                    pushMessage("HDFS => An error occurred while trying mapreduce (IOException)");
+                } catch (ClassNotFoundException classNotFoundException) {
+                    classNotFoundException.printStackTrace();
+                    pushMessage("HDFS => An error occurred while trying mapreduce (ClassNotFoundException)");
+                } catch (InterruptedException interruptedException) {
+                    interruptedException.printStackTrace();
+                    pushMessage("HDFS => An error occurred while trying mapreduce (InterruptedException)");
+                }
 
             default:
                 System.out.println("[ERROR] wrong button selection (command = '" + command + "')");
