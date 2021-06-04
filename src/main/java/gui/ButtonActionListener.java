@@ -34,14 +34,14 @@ public class ButtonActionListener implements ActionListener {
         switch (command) {
 
             case Utility.CHOOSE_FILE:
-                JFileChooser fileChooser = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
-                int result = fileChooser.showOpenDialog(null);
+                JFileChooser fileChooserAdd = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+                int result = fileChooserAdd.showOpenDialog(null);
                 if (result == JFileChooser.APPROVE_OPTION) {
-                    selectedFilePath = fileChooser.getSelectedFile().getAbsolutePath();
+                    selectedFilePath = fileChooserAdd.getSelectedFile().getAbsolutePath();
 
-                    System.out.println("[INFO] Selected file path: " + fileChooser.getSelectedFile().getAbsolutePath());
-                    System.out.println("[INFO] Selected file name: " + fileChooser.getSelectedFile().getName());
-                    pushMessage("HDFS => Selected file: " + fileChooser.getSelectedFile().getName());
+                    System.out.println("[INFO] Selected file path: " + fileChooserAdd.getSelectedFile().getAbsolutePath());
+                    System.out.println("[INFO] Selected file name: " + fileChooserAdd.getSelectedFile().getName());
+                    pushMessage("HDFS => Selected file: " + fileChooserAdd.getSelectedFile().getName());
                 } else {
                     selectedFilePath = null;
                     System.out.println("[INFO] FileChooser: cancelled");
@@ -69,6 +69,32 @@ public class ButtonActionListener implements ActionListener {
                 }
                 break;
 
+            case Utility.DELETE_FILE:
+                JFileChooser fileChooserDelete = new JFileChooser(HadoopController.HDFS_FILE_DIRECTORY);
+                int resultDelete = fileChooserDelete.showOpenDialog(null);
+                if (resultDelete == JFileChooser.APPROVE_OPTION) {
+
+                    String filePath = fileChooserDelete.getSelectedFile().getAbsolutePath();
+
+                    System.out.println("[INFO] Selected file path: " + filePath);
+                    System.out.println("[INFO] Selected file name: " + fileChooserDelete.getSelectedFile().getName());
+                    pushMessage("HDFS => Deleting: " + fileChooserDelete.getSelectedFile().getName());
+
+                    try {
+                        if (hadoopController.deleteFile(filePath)) {
+                            pushMessage("HDFS => File deleted successfully");
+                        } else {
+                            pushMessage("HDFS => File could not be deleted");
+                        }
+                    } catch (IOException ioException) {
+                        pushMessage("HDFS => An error occurred while trying to delete file");
+                        ioException.printStackTrace();
+                    }
+                } else {
+                    pushMessage("HDFS => File selection cancelled");
+                }
+                break;
+
             case Utility.MAPREDUCE:
                 try {
                     hadoopController.mapreduce();
@@ -82,6 +108,82 @@ public class ButtonActionListener implements ActionListener {
                     interruptedException.printStackTrace();
                     pushMessage("HDFS => An error occurred while trying mapreduce (InterruptedException)");
                 }
+                break;
+
+            case Utility.MAX:
+                try {
+                    hadoopController.max();
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                    pushMessage("HDFS => An error occurred while trying mapreduce (IOException)");
+                } catch (ClassNotFoundException classNotFoundException) {
+                    classNotFoundException.printStackTrace();
+                    pushMessage("HDFS => An error occurred while trying mapreduce (ClassNotFoundException)");
+                } catch (InterruptedException interruptedException) {
+                    interruptedException.printStackTrace();
+                    pushMessage("HDFS => An error occurred while trying mapreduce (InterruptedException)");
+                }
+                break;
+
+            case Utility.AVERAGE:
+                try {
+                    hadoopController.average();
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                    pushMessage("HDFS => An error occurred while trying mapreduce (IOException)");
+                } catch (ClassNotFoundException classNotFoundException) {
+                    classNotFoundException.printStackTrace();
+                    pushMessage("HDFS => An error occurred while trying mapreduce (ClassNotFoundException)");
+                } catch (InterruptedException interruptedException) {
+                    interruptedException.printStackTrace();
+                    pushMessage("HDFS => An error occurred while trying mapreduce (InterruptedException)");
+                }
+                break;
+
+            case Utility.MEDIAN:
+                try {
+                    hadoopController.median();
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                    pushMessage("HDFS => An error occurred while trying mapreduce (IOException)");
+                } catch (ClassNotFoundException classNotFoundException) {
+                    classNotFoundException.printStackTrace();
+                    pushMessage("HDFS => An error occurred while trying mapreduce (ClassNotFoundException)");
+                } catch (InterruptedException interruptedException) {
+                    interruptedException.printStackTrace();
+                    pushMessage("HDFS => An error occurred while trying mapreduce (InterruptedException)");
+                }
+                break;
+
+            case Utility.STDEV:
+                try {
+                    hadoopController.standardDeviation();
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                    pushMessage("HDFS => An error occurred while trying mapreduce (IOException)");
+                } catch (ClassNotFoundException classNotFoundException) {
+                    classNotFoundException.printStackTrace();
+                    pushMessage("HDFS => An error occurred while trying mapreduce (ClassNotFoundException)");
+                } catch (InterruptedException interruptedException) {
+                    interruptedException.printStackTrace();
+                    pushMessage("HDFS => An error occurred while trying mapreduce (InterruptedException)");
+                }
+                break;
+
+            case Utility.SUM:
+                try {
+                    hadoopController.sum();
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                    pushMessage("HDFS => An error occurred while trying mapreduce (IOException)");
+                } catch (ClassNotFoundException classNotFoundException) {
+                    classNotFoundException.printStackTrace();
+                    pushMessage("HDFS => An error occurred while trying mapreduce (ClassNotFoundException)");
+                } catch (InterruptedException interruptedException) {
+                    interruptedException.printStackTrace();
+                    pushMessage("HDFS => An error occurred while trying mapreduce (InterruptedException)");
+                }
+                break;
 
             default:
                 System.out.println("[ERROR] wrong button selection (command = '" + command + "')");

@@ -1,5 +1,8 @@
 package gui;
 
+import hadoop.HadoopController;
+import utility.Time;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -40,9 +43,14 @@ public class MainScreen {
         addFileButton.addActionListener(buttonActionListener);
         // addFileButton.setMargin(new Insets(0, 0, 0, 0));
 
+        TextButton deleteFileButton = new TextButton();
+        deleteFileButton.setText(Utility.DELETE_FILE);
+        deleteFileButton.addActionListener(buttonActionListener);
+
         headerPanel.add(hdfsLabel);
         headerPanel.add(addFileButton);
         headerPanel.add(chooseFileButton);
+        headerPanel.add(deleteFileButton);
 
         frame.add(headerPanel, BorderLayout.NORTH);
     }
@@ -93,17 +101,55 @@ public class MainScreen {
 
         setLeftMenu(mainPanel);
 
-        frame.add(mainPanel, BorderLayout.SOUTH);
+        JPanel contentPanel = new JPanel();
+        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+
+        JTextArea textArea = new JTextArea();
+
+        HadoopController.JobListener jobListener = new HadoopController.JobListener() {
+            @Override
+            public void addMessage(String s) {
+                textArea.append(
+                        System.lineSeparator() + Time.dateWithMilliseconds(System.currentTimeMillis()) + " => " + s);
+            }
+
+            @Override
+            public void addMessage(long timestamp, String s) {
+                textArea.append(System.lineSeparator() + Time.dateWithMilliseconds(timestamp) + " => " + s);
+            }
+
+            @Override
+            public void refreshLastLine(String message) {
+                Utility.changeLastLine(textArea,
+                        Time.dateWithMilliseconds(System.currentTimeMillis()) + " => " + message);
+            }
+
+            @Override
+            public void clear() {
+                textArea.setText("");
+            }
+        };
+        HadoopController.attachJobListener(jobListener);
+
+        contentPanel.add(textArea);
+
+        mainPanel.add(contentPanel);
+
+        frame.add(mainPanel, BorderLayout.CENTER);
     }
 
     public void show() {
         JFrame frame = new JFrame();
         frame.setTitle("[BIG DATA] Mapreduce/home");
-        frame.setSize(800, 500);
+        frame.setSize(900, 500);
         frame.setLocation(100, 100);
 
         setHeader(frame);
         setMainPanel(frame);
+
+        JLabel label = new JLabel("<html><div style='text-align: center;color: green;font-weight: 100;'>" +
+                "keremCAVAS@ytuCE 2021</div></html>", SwingConstants.CENTER);
+        frame.add(label, BorderLayout.SOUTH);
 
         frame.setVisible(true);
     }

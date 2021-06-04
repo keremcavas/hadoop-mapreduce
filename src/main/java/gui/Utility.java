@@ -1,9 +1,11 @@
 package gui;
 
+import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
+import javax.swing.text.BadLocationException;
 import java.awt.*;
 
 public class Utility {
@@ -21,6 +23,7 @@ public class Utility {
     static final String STDEV = "stdev";
     static final String MEDIAN = "median";
     static final String SUM = "sum";
+    static final String DELETE_FILE = "Delete file from hdfs";
 
     static CompoundBorder getOneLineBorder(String edge) {
         Border marginBorder = new EmptyBorder(20, 20, 20, 20);
@@ -40,6 +43,20 @@ public class Utility {
         }
 
         return new CompoundBorder(marginBorder, lineBorder);
+    }
+
+    static void changeLastLine(JTextArea textArea, String newStr) {
+        int lineCount = textArea.getLineCount();
+        int lastLineStartOffset = 0;
+        int lastLineEndOffset = 0;
+        try {
+            lastLineStartOffset = textArea.getLineStartOffset(lineCount - 1);
+            lastLineEndOffset = textArea.getLineEndOffset(lineCount - 1);
+
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+        textArea.replaceRange(newStr, lastLineStartOffset, lastLineEndOffset);
     }
 
 }
