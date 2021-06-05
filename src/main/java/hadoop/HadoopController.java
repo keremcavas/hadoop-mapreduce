@@ -97,6 +97,11 @@ public class HadoopController {
         job.setOutputValueClass(IntWritable.class);
 
         Path outputPath = new Path(HDFS_FILE_DIRECTORY + "/mapreduce-output");
+
+        if (hdfs.exists(outputPath)) {
+            hdfs.delete(outputPath, true);
+        }
+
         FileInputFormat.addInputPath(job, new Path(HDFS_FILE_DIRECTORY + "/mapreduce-input"));
         FileOutputFormat.setOutputPath(job, outputPath);
 
@@ -138,6 +143,11 @@ public class HadoopController {
         job.setOutputValueClass(IntWritable.class);
 
         Path outputPath = new Path(HDFS_FILE_DIRECTORY + "/max-output");
+
+        if (hdfs.exists(outputPath)) {
+            hdfs.delete(outputPath, true);
+        }
+
         FileInputFormat.addInputPath(job, new Path(HDFS_FILE_DIRECTORY + "/mapreduce-output"));
         FileOutputFormat.setOutputPath(job, outputPath);
 
@@ -178,6 +188,11 @@ public class HadoopController {
         job.setOutputValueClass(DoubleWritable.class);
 
         Path outputPath = new Path(HDFS_FILE_DIRECTORY + "/average-output");
+
+        if (hdfs.exists(outputPath)) {
+            hdfs.delete(outputPath, true);
+        }
+
         FileInputFormat.addInputPath(job, new Path(HDFS_FILE_DIRECTORY + "/mapreduce-output"));
         FileOutputFormat.setOutputPath(job, outputPath);
 
@@ -218,6 +233,11 @@ public class HadoopController {
         job.setOutputValueClass(DoubleWritable.class);
 
         Path outputPath = new Path(HDFS_FILE_DIRECTORY + "/stdev-output");
+
+        if (hdfs.exists(outputPath)) {
+            hdfs.delete(outputPath, true);
+        }
+
         FileInputFormat.addInputPath(job, new Path(HDFS_FILE_DIRECTORY + "/mapreduce-output"));
         FileOutputFormat.setOutputPath(job, outputPath);
 
@@ -258,6 +278,11 @@ public class HadoopController {
         job.setOutputValueClass(IntWritable.class);
 
         Path outputPath = new Path(HDFS_FILE_DIRECTORY + "/median-output");
+
+        if (hdfs.exists(outputPath)) {
+            hdfs.delete(outputPath, true);
+        }
+
         FileInputFormat.addInputPath(job, new Path(HDFS_FILE_DIRECTORY + "/mapreduce-output"));
         FileOutputFormat.setOutputPath(job, outputPath);
 
@@ -296,6 +321,11 @@ public class HadoopController {
         job.setOutputValueClass(IntWritable.class);
 
         Path outputPath = new Path(HDFS_FILE_DIRECTORY + "/sum-output");
+
+        if (hdfs.exists(outputPath)) {
+            hdfs.delete(outputPath, true);
+        }
+
         FileInputFormat.addInputPath(job, new Path(HDFS_FILE_DIRECTORY + "/mapreduce-output"));
         FileOutputFormat.setOutputPath(job, outputPath);
 
