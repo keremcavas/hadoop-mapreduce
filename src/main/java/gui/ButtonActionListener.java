@@ -27,147 +27,158 @@ public class ButtonActionListener implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        String command = e.getActionCommand();
 
-        HadoopController hadoopController = null;
-        try {
-            hadoopController = new HadoopController();
-        } catch (IOException ioException) {
-            pushMessage("HDFS => Can't create FileSystem");
-            ioException.printStackTrace();
-        }
+        SwingWorker<Void, String> swingWorker = new SwingWorker<Void, String>() {
+            @Override
+            protected Void doInBackground() throws Exception {
 
-        switch (command) {
+                String command = e.getActionCommand();
 
-            case Utility.CHOOSE_FILE:
-                JFileChooser fileChooserAdd = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
-                int result = fileChooserAdd.showOpenDialog(null);
-                if (result == JFileChooser.APPROVE_OPTION) {
-                    selectedFilePath = fileChooserAdd.getSelectedFile().getAbsolutePath();
-
-                    System.out.println("[INFO] Selected file path: " + fileChooserAdd.getSelectedFile().getAbsolutePath());
-                    System.out.println("[INFO] Selected file name: " + fileChooserAdd.getSelectedFile().getName());
-                    pushMessage("HDFS => Selected file: " + fileChooserAdd.getSelectedFile().getName());
-                } else {
-                    selectedFilePath = null;
-                    System.out.println("[INFO] FileChooser: cancelled");
-                    pushMessage("HDFS => File selection cancelled");
+                HadoopController hadoopController = null;
+                try {
+                    hadoopController = new HadoopController();
+                } catch (IOException ioException) {
+                    pushMessage("HDFS => Can't create FileSystem");
+                    ioException.printStackTrace();
                 }
-                break;
 
-            case Utility.ADD_FILE:
-                if (selectedFilePath != null) {
-                    try {
-                        result = hadoopController.addFile(selectedFilePath);
-                        if (result == HadoopController.FILE_ADDED_SUCCESSFULLY) {
-                            pushMessage("HDFS => File added successfully");
-                        } else if (result == HadoopController.FILE_ALREADY_EXISTS) {
-                            pushMessage("HDFS => File already exists");
+                switch (command) {
+
+                    case Utility.CHOOSE_FILE:
+                        JFileChooser fileChooserAdd = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+                        int result = fileChooserAdd.showOpenDialog(null);
+                        if (result == JFileChooser.APPROVE_OPTION) {
+                            selectedFilePath = fileChooserAdd.getSelectedFile().getAbsolutePath();
+
+                            System.out.println("[INFO] Selected file path: " + fileChooserAdd.getSelectedFile().getAbsolutePath());
+                            System.out.println("[INFO] Selected file name: " + fileChooserAdd.getSelectedFile().getName());
+                            pushMessage("HDFS => Selected file: " + fileChooserAdd.getSelectedFile().getName());
+                        } else {
+                            selectedFilePath = null;
+                            System.out.println("[INFO] FileChooser: cancelled");
+                            pushMessage("HDFS => File selection cancelled");
                         }
+                        break;
 
-                    } catch (IOException ioException) {
-                        ioException.printStackTrace();
-                        pushMessage("HDFS => An error occurred while trying to add a file");
-                    }
-                } else {
-                    System.out.println("[ERROR] File have not chosen yet");
-                    pushMessage("HDFS => File have not chosen yet");
+                    case Utility.ADD_FILE:
+                        if (selectedFilePath != null) {
+                            try {
+                                result = hadoopController.addFile(selectedFilePath);
+                                if (result == HadoopController.FILE_ADDED_SUCCESSFULLY) {
+                                    pushMessage("HDFS => File added successfully");
+                                } else if (result == HadoopController.FILE_ALREADY_EXISTS) {
+                                    pushMessage("HDFS => File already exists");
+                                }
+
+                            } catch (IOException ioException) {
+                                ioException.printStackTrace();
+                                pushMessage("HDFS => An error occurred while trying to add a file");
+                            }
+                        } else {
+                            System.out.println("[ERROR] File have not chosen yet");
+                            pushMessage("HDFS => File have not chosen yet");
+                        }
+                        break;
+
+                    case Utility.MAPREDUCE:
+                        try {
+                            hadoopController.mapreduce();
+                        } catch (IOException ioException) {
+                            ioException.printStackTrace();
+                            pushMessage("HDFS => An error occurred while trying mapreduce (IOException)");
+                        } catch (ClassNotFoundException classNotFoundException) {
+                            classNotFoundException.printStackTrace();
+                            pushMessage("HDFS => An error occurred while trying mapreduce (ClassNotFoundException)");
+                        } catch (InterruptedException interruptedException) {
+                            interruptedException.printStackTrace();
+                            pushMessage("HDFS => An error occurred while trying mapreduce (InterruptedException)");
+                        }
+                        break;
+
+                    case Utility.MAX:
+                        try {
+                            hadoopController.max();
+                        } catch (IOException ioException) {
+                            ioException.printStackTrace();
+                            pushMessage("HDFS => An error occurred while trying mapreduce (IOException)");
+                        } catch (ClassNotFoundException classNotFoundException) {
+                            classNotFoundException.printStackTrace();
+                            pushMessage("HDFS => An error occurred while trying mapreduce (ClassNotFoundException)");
+                        } catch (InterruptedException interruptedException) {
+                            interruptedException.printStackTrace();
+                            pushMessage("HDFS => An error occurred while trying mapreduce (InterruptedException)");
+                        }
+                        break;
+
+                    case Utility.AVERAGE:
+                        try {
+                            hadoopController.average();
+                        } catch (IOException ioException) {
+                            ioException.printStackTrace();
+                            pushMessage("HDFS => An error occurred while trying mapreduce (IOException)");
+                        } catch (ClassNotFoundException classNotFoundException) {
+                            classNotFoundException.printStackTrace();
+                            pushMessage("HDFS => An error occurred while trying mapreduce (ClassNotFoundException)");
+                        } catch (InterruptedException interruptedException) {
+                            interruptedException.printStackTrace();
+                            pushMessage("HDFS => An error occurred while trying mapreduce (InterruptedException)");
+                        }
+                        break;
+
+                    case Utility.MEDIAN:
+                        try {
+                            hadoopController.median();
+                        } catch (IOException ioException) {
+                            ioException.printStackTrace();
+                            pushMessage("HDFS => An error occurred while trying mapreduce (IOException)");
+                        } catch (ClassNotFoundException classNotFoundException) {
+                            classNotFoundException.printStackTrace();
+                            pushMessage("HDFS => An error occurred while trying mapreduce (ClassNotFoundException)");
+                        } catch (InterruptedException interruptedException) {
+                            interruptedException.printStackTrace();
+                            pushMessage("HDFS => An error occurred while trying mapreduce (InterruptedException)");
+                        }
+                        break;
+
+                    case Utility.STDEV:
+                        try {
+                            hadoopController.standardDeviation();
+                        } catch (IOException ioException) {
+                            ioException.printStackTrace();
+                            pushMessage("HDFS => An error occurred while trying mapreduce (IOException)");
+                        } catch (ClassNotFoundException classNotFoundException) {
+                            classNotFoundException.printStackTrace();
+                            pushMessage("HDFS => An error occurred while trying mapreduce (ClassNotFoundException)");
+                        } catch (InterruptedException interruptedException) {
+                            interruptedException.printStackTrace();
+                            pushMessage("HDFS => An error occurred while trying mapreduce (InterruptedException)");
+                        }
+                        break;
+
+                    case Utility.SUM:
+                        try {
+                            hadoopController.sum();
+                        } catch (IOException ioException) {
+                            ioException.printStackTrace();
+                            pushMessage("HDFS => An error occurred while trying mapreduce (IOException)");
+                        } catch (ClassNotFoundException classNotFoundException) {
+                            classNotFoundException.printStackTrace();
+                            pushMessage("HDFS => An error occurred while trying mapreduce (ClassNotFoundException)");
+                        } catch (InterruptedException interruptedException) {
+                            interruptedException.printStackTrace();
+                            pushMessage("HDFS => An error occurred while trying mapreduce (InterruptedException)");
+                        }
+                        break;
+
+                    default:
+                        System.out.println("[ERROR] wrong button selection (command = '" + command + "')");
                 }
-                break;
 
-            case Utility.MAPREDUCE:
-                try {
-                    hadoopController.mapreduce();
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                    pushMessage("HDFS => An error occurred while trying mapreduce (IOException)");
-                } catch (ClassNotFoundException classNotFoundException) {
-                    classNotFoundException.printStackTrace();
-                    pushMessage("HDFS => An error occurred while trying mapreduce (ClassNotFoundException)");
-                } catch (InterruptedException interruptedException) {
-                    interruptedException.printStackTrace();
-                    pushMessage("HDFS => An error occurred while trying mapreduce (InterruptedException)");
-                }
-                break;
+                return null;
+            }
+        };
 
-            case Utility.MAX:
-                try {
-                    hadoopController.max();
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                    pushMessage("HDFS => An error occurred while trying mapreduce (IOException)");
-                } catch (ClassNotFoundException classNotFoundException) {
-                    classNotFoundException.printStackTrace();
-                    pushMessage("HDFS => An error occurred while trying mapreduce (ClassNotFoundException)");
-                } catch (InterruptedException interruptedException) {
-                    interruptedException.printStackTrace();
-                    pushMessage("HDFS => An error occurred while trying mapreduce (InterruptedException)");
-                }
-                break;
-
-            case Utility.AVERAGE:
-                try {
-                    hadoopController.average();
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                    pushMessage("HDFS => An error occurred while trying mapreduce (IOException)");
-                } catch (ClassNotFoundException classNotFoundException) {
-                    classNotFoundException.printStackTrace();
-                    pushMessage("HDFS => An error occurred while trying mapreduce (ClassNotFoundException)");
-                } catch (InterruptedException interruptedException) {
-                    interruptedException.printStackTrace();
-                    pushMessage("HDFS => An error occurred while trying mapreduce (InterruptedException)");
-                }
-                break;
-
-            case Utility.MEDIAN:
-                try {
-                    hadoopController.median();
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                    pushMessage("HDFS => An error occurred while trying mapreduce (IOException)");
-                } catch (ClassNotFoundException classNotFoundException) {
-                    classNotFoundException.printStackTrace();
-                    pushMessage("HDFS => An error occurred while trying mapreduce (ClassNotFoundException)");
-                } catch (InterruptedException interruptedException) {
-                    interruptedException.printStackTrace();
-                    pushMessage("HDFS => An error occurred while trying mapreduce (InterruptedException)");
-                }
-                break;
-
-            case Utility.STDEV:
-                try {
-                    hadoopController.standardDeviation();
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                    pushMessage("HDFS => An error occurred while trying mapreduce (IOException)");
-                } catch (ClassNotFoundException classNotFoundException) {
-                    classNotFoundException.printStackTrace();
-                    pushMessage("HDFS => An error occurred while trying mapreduce (ClassNotFoundException)");
-                } catch (InterruptedException interruptedException) {
-                    interruptedException.printStackTrace();
-                    pushMessage("HDFS => An error occurred while trying mapreduce (InterruptedException)");
-                }
-                break;
-
-            case Utility.SUM:
-                try {
-                    hadoopController.sum();
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                    pushMessage("HDFS => An error occurred while trying mapreduce (IOException)");
-                } catch (ClassNotFoundException classNotFoundException) {
-                    classNotFoundException.printStackTrace();
-                    pushMessage("HDFS => An error occurred while trying mapreduce (ClassNotFoundException)");
-                } catch (InterruptedException interruptedException) {
-                    interruptedException.printStackTrace();
-                    pushMessage("HDFS => An error occurred while trying mapreduce (InterruptedException)");
-                }
-                break;
-
-            default:
-                System.out.println("[ERROR] wrong button selection (command = '" + command + "')");
-        }
+        swingWorker.execute();
     }
 
     public void attachMessageListener(MessageListener listener) {
