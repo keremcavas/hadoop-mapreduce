@@ -29,7 +29,13 @@ public class ButtonActionListener implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         String command = e.getActionCommand();
 
-        HadoopController hadoopController = new HadoopController();
+        HadoopController hadoopController = null;
+        try {
+            hadoopController = new HadoopController();
+        } catch (IOException ioException) {
+            pushMessage("HDFS => Can't create FileSystem");
+            ioException.printStackTrace();
+        }
 
         switch (command) {
 
@@ -66,32 +72,6 @@ public class ButtonActionListener implements ActionListener {
                 } else {
                     System.out.println("[ERROR] File have not chosen yet");
                     pushMessage("HDFS => File have not chosen yet");
-                }
-                break;
-
-            case Utility.DELETE_FILE:
-                JFileChooser fileChooserDelete = new JFileChooser(HadoopController.HDFS_FILE_DIRECTORY);
-                int resultDelete = fileChooserDelete.showOpenDialog(null);
-                if (resultDelete == JFileChooser.APPROVE_OPTION) {
-
-                    String filePath = fileChooserDelete.getSelectedFile().getAbsolutePath();
-
-                    System.out.println("[INFO] Selected file path: " + filePath);
-                    System.out.println("[INFO] Selected file name: " + fileChooserDelete.getSelectedFile().getName());
-                    pushMessage("HDFS => Deleting: " + fileChooserDelete.getSelectedFile().getName());
-
-                    try {
-                        if (hadoopController.deleteFile(filePath)) {
-                            pushMessage("HDFS => File deleted successfully");
-                        } else {
-                            pushMessage("HDFS => File could not be deleted");
-                        }
-                    } catch (IOException ioException) {
-                        pushMessage("HDFS => An error occurred while trying to delete file");
-                        ioException.printStackTrace();
-                    }
-                } else {
-                    pushMessage("HDFS => File selection cancelled");
                 }
                 break;
 

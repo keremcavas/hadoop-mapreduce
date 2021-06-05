@@ -19,6 +19,7 @@ public class HadoopController {
 
     private final Configuration configuration;
     private static JobListener jobListener;
+    private final FileSystem hdfs;
 
     public static final int FILE_ADDED_SUCCESSFULLY = 0;
     public static final int FILE_ALREADY_EXISTS = 1;
@@ -26,12 +27,14 @@ public class HadoopController {
     private static final String CORE_SITE_PATH = "/usr/local/hadoop/etc/hadoop/core-site.xml";
     private static final String HDFS_SITE_PATH = "/usr/local/hadoop/etc/hadoop/hdfs-site.xml";
 
-    public static final String HDFS_FILE_DIRECTORY = "/usr/local/hadoop/hdfs-files";
+    public static final String HDFS_FILE_DIRECTORY = "/files";
 
-    public HadoopController() {
+    public HadoopController() throws IOException {
         configuration = new Configuration();
         configuration.addResource(new Path(CORE_SITE_PATH));
         configuration.addResource(new Path(HDFS_SITE_PATH));
+
+        hdfs = FileSystem.get(configuration);
     }
 
     public interface JobListener {
@@ -47,17 +50,27 @@ public class HadoopController {
 
     public int addFile(String filePath) throws IOException {
 
-        FileSystem hdfs = FileSystem.get(configuration);
+        jobListener.clear();
+        jobListener.addMessage("File adding to hdfs");
 
         File source = new File(filePath);
 
+        Path inputPath = new Path(HDFS_FILE_DIRECTORY + "/mapreduce-input");
+
+        // add selected file to hdfs
         FileUtil.copy(
                 source,
                 hdfs,
-                new Path(HDFS_FILE_DIRECTORY + "/mapreduce-input"),
+                inputPath,
                 false,
                 configuration
         );
+
+        jobListener.addMessage("File added to hdfs successfully");
+
+        int firstNLine = 5;
+        jobListener.addMessage("Trying to read first" + firstNLine + "line of the input file from hdfs:");
+        jobListener.addMessage(HdfsReader.read(firstNLine, inputPath, hdfs));
 
         return FILE_ADDED_SUCCESSFULLY;
     }
@@ -78,6 +91,7 @@ public class HadoopController {
 
         Job job = Job.getInstance(configuration, "mapreduce");
 
+        job.setJarByClass(MapReducer.class);
         job.setMapperClass(MapReducer.MapCount.class);
         job.setCombinerClass(MapReducer.ReduceCount.class);
         job.setReducerClass(MapReducer.ReduceCount.class);
@@ -87,8 +101,9 @@ public class HadoopController {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
 
+        Path outputPath = new Path(HDFS_FILE_DIRECTORY + "/mapreduce-output");
         FileInputFormat.addInputPath(job, new Path(HDFS_FILE_DIRECTORY + "/mapreduce-input"));
-        FileOutputFormat.setOutputPath(job, new Path(HDFS_FILE_DIRECTORY + "/mapreduce-output"));
+        FileOutputFormat.setOutputPath(job, outputPath);
 
         job.waitForCompletion(true);
 
@@ -100,6 +115,11 @@ public class HadoopController {
         pushMessage(endTime, "Mapreduce finish");
 
         pushMessage("[INFO] total time in millis = " + (endTime - startTime));
+
+        int firstNLine = 5;
+        pushMessage("First" + firstNLine + "line of mapped and reduced file:");
+        jobListener.addMessage(HdfsReader.read(
+                firstNLine, new Path(HDFS_FILE_DIRECTORY + "/mapreduce-output/part-r-00000"), hdfs));
     }
 
     public void max() throws IOException, ClassNotFoundException, InterruptedException {
@@ -113,6 +133,7 @@ public class HadoopController {
 
         Job job = Job.getInstance(configuration, "max");
 
+        job.setJarByClass(MapReducer.class);
         job.setMapperClass(MapReducer.MapMax.class);
         job.setReducerClass(MapReducer.ReduceMax.class);
 
@@ -121,8 +142,9 @@ public class HadoopController {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
 
+        Path outputPath = new Path(HDFS_FILE_DIRECTORY + "/max-output");
         FileInputFormat.addInputPath(job, new Path(HDFS_FILE_DIRECTORY + "/mapreduce-output"));
-        FileOutputFormat.setOutputPath(job, new Path(HDFS_FILE_DIRECTORY + "/max-output"));
+        FileOutputFormat.setOutputPath(job, outputPath);
 
         job.waitForCompletion(true);
 
@@ -134,6 +156,10 @@ public class HadoopController {
         pushMessage(endTime, "Mapreduce finish");
 
         pushMessage("Total time in millis => " + (endTime - startTime));
+
+        jobListener.addMessage("Result of mapreduce:");
+        jobListener.addMessage(HdfsReader.read(
+                1, new Path(HDFS_FILE_DIRECTORY + "/max-output/part-r-00000"), hdfs));
     }
 
     public void average() throws IOException, ClassNotFoundException, InterruptedException {
@@ -147,6 +173,7 @@ public class HadoopController {
 
         Job job = Job.getInstance(configuration, "average");
 
+        job.setJarByClass(MapReducer.class);
         job.setMapperClass(MapReducer.MapAverage.class);
         job.setReducerClass(MapReducer.ReduceAverage.class);
 
@@ -155,8 +182,9 @@ public class HadoopController {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(DoubleWritable.class);
 
+        Path outputPath = new Path(HDFS_FILE_DIRECTORY + "/average-output");
         FileInputFormat.addInputPath(job, new Path(HDFS_FILE_DIRECTORY + "/mapreduce-output"));
-        FileOutputFormat.setOutputPath(job, new Path(HDFS_FILE_DIRECTORY + "/average-output"));
+        FileOutputFormat.setOutputPath(job, outputPath);
 
         job.waitForCompletion(true);
 
@@ -168,6 +196,10 @@ public class HadoopController {
         pushMessage(endTime, "Mapreduce finish");
 
         pushMessage("Total time in millis => " + (endTime - startTime));
+
+        jobListener.addMessage("Result of mapreduce:");
+        jobListener.addMessage(HdfsReader.read(
+                1, new Path(HDFS_FILE_DIRECTORY + "/average-output/part-r-00000"), hdfs));
     }
 
     public void standardDeviation() throws IOException, ClassNotFoundException, InterruptedException {
@@ -181,6 +213,7 @@ public class HadoopController {
 
         Job job = Job.getInstance(configuration, "stdev");
 
+        job.setJarByClass(MapReducer.class);
         job.setMapperClass(MapReducer.MapAverage.class);
         job.setReducerClass(MapReducer.ReduceAverage.class);
 
@@ -189,8 +222,9 @@ public class HadoopController {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(DoubleWritable.class);
 
+        Path outputPath = new Path(HDFS_FILE_DIRECTORY + "/stdev-output");
         FileInputFormat.addInputPath(job, new Path(HDFS_FILE_DIRECTORY + "/mapreduce-output"));
-        FileOutputFormat.setOutputPath(job, new Path(HDFS_FILE_DIRECTORY + "/stdev-output"));
+        FileOutputFormat.setOutputPath(job, outputPath);
 
         job.waitForCompletion(true);
 
@@ -202,6 +236,10 @@ public class HadoopController {
         pushMessage(endTime, "Mapreduce finish");
 
         pushMessage("Total time in millis => " + (endTime - startTime));
+
+        jobListener.addMessage("Result of mapreduce:");
+        jobListener.addMessage(HdfsReader.read(
+                1, new Path(HDFS_FILE_DIRECTORY + "/stdev-output/part-r-00000"), hdfs));
     }
 
     public void median() throws InterruptedException, IOException, ClassNotFoundException {
@@ -215,6 +253,7 @@ public class HadoopController {
 
         Job job = Job.getInstance(configuration, "median");
 
+        job.setJarByClass(MapReducer.class);
         job.setMapperClass(MapReducer.MapAverage.class);
         job.setReducerClass(MapReducer.ReduceAverage.class);
 
@@ -223,8 +262,9 @@ public class HadoopController {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
 
+        Path outputPath = new Path(HDFS_FILE_DIRECTORY + "/median-output");
         FileInputFormat.addInputPath(job, new Path(HDFS_FILE_DIRECTORY + "/mapreduce-output"));
-        FileOutputFormat.setOutputPath(job, new Path(HDFS_FILE_DIRECTORY + "/median-output"));
+        FileOutputFormat.setOutputPath(job, outputPath);
 
         job.waitForCompletion(true);
 
@@ -236,6 +276,10 @@ public class HadoopController {
         pushMessage(endTime, "Mapreduce finish");
 
         pushMessage("Total time in millis => " + (endTime - startTime));
+
+        jobListener.addMessage("Result of mapreduce:");
+        jobListener.addMessage(HdfsReader.read(
+                1, new Path(HDFS_FILE_DIRECTORY + "/median-output/part-r-00000"), hdfs));
     }
 
     public void sum() throws InterruptedException, IOException, ClassNotFoundException {
@@ -247,6 +291,7 @@ public class HadoopController {
 
         Job job = Job.getInstance(configuration, "sum");
 
+        job.setJarByClass(MapReducer.class);
         job.setMapperClass(MapReducer.MapAverage.class);
         job.setReducerClass(MapReducer.ReduceAverage.class);
 
@@ -255,8 +300,9 @@ public class HadoopController {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
 
+        Path outputPath = new Path(HDFS_FILE_DIRECTORY + "/sum-output");
         FileInputFormat.addInputPath(job, new Path(HDFS_FILE_DIRECTORY + "/mapreduce-output"));
-        FileOutputFormat.setOutputPath(job, new Path(HDFS_FILE_DIRECTORY + "/sum-output"));
+        FileOutputFormat.setOutputPath(job, outputPath);
 
         job.waitForCompletion(true);
 
@@ -268,6 +314,10 @@ public class HadoopController {
         pushMessage(endTime, "Mapreduce finish");
 
         pushMessage("Total time in millis => " + (endTime - startTime));
+
+        jobListener.addMessage("Result of mapreduce:");
+        jobListener.addMessage(HdfsReader.read(
+                1, new Path(HDFS_FILE_DIRECTORY + "/sum-output/part-r-00000"), hdfs));
     }
 
     private void pushMessage(String message) {

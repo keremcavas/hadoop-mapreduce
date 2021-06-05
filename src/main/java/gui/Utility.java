@@ -23,7 +23,6 @@ public class Utility {
     static final String STDEV = "stdev";
     static final String MEDIAN = "median";
     static final String SUM = "sum";
-    static final String DELETE_FILE = "Delete file from hdfs";
 
     static CompoundBorder getOneLineBorder(String edge) {
         Border marginBorder = new EmptyBorder(20, 20, 20, 20);

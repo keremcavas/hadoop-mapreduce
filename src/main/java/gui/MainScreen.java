@@ -43,14 +43,9 @@ public class MainScreen {
         addFileButton.addActionListener(buttonActionListener);
         // addFileButton.setMargin(new Insets(0, 0, 0, 0));
 
-        TextButton deleteFileButton = new TextButton();
-        deleteFileButton.setText(Utility.DELETE_FILE);
-        deleteFileButton.addActionListener(buttonActionListener);
-
         headerPanel.add(hdfsLabel);
         headerPanel.add(addFileButton);
         headerPanel.add(chooseFileButton);
-        headerPanel.add(deleteFileButton);
 
         frame.add(headerPanel, BorderLayout.NORTH);
     }
@@ -141,7 +136,7 @@ public class MainScreen {
     public void show() {
         JFrame frame = new JFrame();
         frame.setTitle("[BIG DATA] Mapreduce/home");
-        frame.setSize(900, 500);
+        frame.setSize(800, 500);
         frame.setLocation(100, 100);
 
         setHeader(frame);
