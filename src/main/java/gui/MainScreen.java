@@ -110,7 +110,7 @@ public class MainScreen {
                         textArea.append(
                                 System.lineSeparator() + Time.dateWithMilliseconds(System.currentTimeMillis()) + " => " + s);
                     }
-                });
+                }).start();
             }
 
             @Override
@@ -120,7 +120,7 @@ public class MainScreen {
                     public void run() {
                         textArea.append(System.lineSeparator() + Time.dateWithMilliseconds(timestamp) + " => " + s);
                     }
-                });
+                }).start();
             }
 
             @Override
@@ -131,7 +131,7 @@ public class MainScreen {
                         Utility.changeLastLine(textArea,
                                 Time.dateWithMilliseconds(System.currentTimeMillis()) + " => " + message);
                     }
-                });
+                }).start();
             }
 
             @Override
@@ -141,7 +141,7 @@ public class MainScreen {
                     public void run() {
                         textArea.setText("");
                     }
-                });
+                }).start();
             }
         };
         HadoopController.attachJobListener(jobListener);
