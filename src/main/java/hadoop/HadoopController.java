@@ -75,11 +75,6 @@ public class HadoopController {
         return FILE_ADDED_SUCCESSFULLY;
     }
 
-    public boolean deleteFile(String filePath) throws IOException {
-        FileSystem hdfs = FileSystem.get(configuration);
-        return hdfs.delete(new Path(filePath), true);
-    }
-
     public void mapreduce() throws IOException, ClassNotFoundException, InterruptedException {
 
         jobListener.clear();
@@ -214,8 +209,8 @@ public class HadoopController {
         Job job = Job.getInstance(configuration, "stdev");
 
         job.setJarByClass(MapReducer.class);
-        job.setMapperClass(MapReducer.MapAverage.class);
-        job.setReducerClass(MapReducer.ReduceAverage.class);
+        job.setMapperClass(MapReducer.MapStdev.class);
+        job.setReducerClass(MapReducer.ReduceStdev.class);
 
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(CustomWritables.StdevWritable.class);
@@ -254,8 +249,8 @@ public class HadoopController {
         Job job = Job.getInstance(configuration, "median");
 
         job.setJarByClass(MapReducer.class);
-        job.setMapperClass(MapReducer.MapAverage.class);
-        job.setReducerClass(MapReducer.ReduceAverage.class);
+        job.setMapperClass(MapReducer.MapMedian.class);
+        job.setReducerClass(MapReducer.ReduceMedian.class);
 
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(CustomWritables.MedianWritable.class);
@@ -292,8 +287,8 @@ public class HadoopController {
         Job job = Job.getInstance(configuration, "sum");
 
         job.setJarByClass(MapReducer.class);
-        job.setMapperClass(MapReducer.MapAverage.class);
-        job.setReducerClass(MapReducer.ReduceAverage.class);
+        job.setMapperClass(MapReducer.MapSum.class);
+        job.setReducerClass(MapReducer.ReduceSum.class);
 
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(IntWritable.class);

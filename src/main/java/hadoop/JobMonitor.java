@@ -2,6 +2,7 @@ package hadoop;
 
 import org.apache.hadoop.mapreduce.Job;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -17,23 +18,27 @@ public class JobMonitor {
     }
 
     public void monitor() {
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                try {
 
-                    if (job.isComplete()) {
-                        timer.cancel();
-                        timer.purge();
+        SwingUtilities.invokeLater(() -> {
+
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    try {
+
+                        if (job.isComplete()) {
+                            timer.cancel();
+                            timer.purge();
+                        }
+
+                        jobListener.refreshLastLine("map progress: " + (job.mapProgress() * 100) + "%  " +
+                                "-  reeduce progress" + (job.reduceProgress() * 100) + "%");
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-
-                    jobListener.refreshLastLine("map progress: " + (job.mapProgress() * 100) + "%  " +
-                            "-  reeduce progress" + (job.reduceProgress() * 100) + "%");
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
-            }
-        }, 0, 3000);
+            }, 0, 3000);
+        });
     }
 }
