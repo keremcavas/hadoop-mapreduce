@@ -22,6 +22,10 @@ public class CustomWritables {
             this.m2 = m2;
         }
 
+        // default constructor for mapreduce write tasks
+        public StdevWritable() {
+        }
+
         public void setSize(double size) {
             this.size = size;
         }
@@ -71,6 +75,10 @@ public class CustomWritables {
             frequencies = new ArrayList<>();
             this.pairCount = pairCount;
             this.totalWord = totalWord;
+        }
+
+        // default constructor for mapreduce write tasks
+        public MedianWritable() {
         }
 
         public void setPairCount(int pairCount) {
