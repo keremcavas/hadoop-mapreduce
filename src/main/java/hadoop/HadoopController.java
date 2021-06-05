@@ -12,6 +12,7 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import utility.Time;
 
+import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 
@@ -105,7 +106,14 @@ public class HadoopController {
         FileInputFormat.addInputPath(job, new Path(HDFS_FILE_DIRECTORY + "/mapreduce-input"));
         FileOutputFormat.setOutputPath(job, outputPath);
 
-        job.waitForCompletion(true);
+        SwingWorker<Void, JobTrackerResult> swingWorker = new SwingWorker<Void, JobTrackerResult>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                job.waitForCompletion(true);
+                return null;
+            }
+        };
+        swingWorker.execute();
 
         JobMonitor jobMonitor = new JobMonitor(job, jobListener);
         jobMonitor.monitor();
@@ -151,7 +159,14 @@ public class HadoopController {
         FileInputFormat.addInputPath(job, new Path(HDFS_FILE_DIRECTORY + "/mapreduce-output"));
         FileOutputFormat.setOutputPath(job, outputPath);
 
-        job.waitForCompletion(true);
+        SwingWorker<Void, JobTrackerResult> swingWorker = new SwingWorker<Void, JobTrackerResult>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                job.waitForCompletion(true);
+                return null;
+            }
+        };
+        swingWorker.execute();
 
         JobMonitor jobMonitor = new JobMonitor(job, jobListener);
         jobMonitor.monitor();
@@ -196,7 +211,14 @@ public class HadoopController {
         FileInputFormat.addInputPath(job, new Path(HDFS_FILE_DIRECTORY + "/mapreduce-output"));
         FileOutputFormat.setOutputPath(job, outputPath);
 
-        job.waitForCompletion(true);
+        SwingWorker<Void, JobTrackerResult> swingWorker = new SwingWorker<Void, JobTrackerResult>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                job.waitForCompletion(true);
+                return null;
+            }
+        };
+        swingWorker.execute();
 
         JobMonitor jobMonitor = new JobMonitor(job, jobListener);
         jobMonitor.monitor();
@@ -241,7 +263,14 @@ public class HadoopController {
         FileInputFormat.addInputPath(job, new Path(HDFS_FILE_DIRECTORY + "/mapreduce-output"));
         FileOutputFormat.setOutputPath(job, outputPath);
 
-        job.waitForCompletion(true);
+        SwingWorker<Void, JobTrackerResult> swingWorker = new SwingWorker<Void, JobTrackerResult>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                job.waitForCompletion(true);
+                return null;
+            }
+        };
+        swingWorker.execute();
 
         JobMonitor jobMonitor = new JobMonitor(job, jobListener);
         jobMonitor.monitor();
@@ -286,7 +315,14 @@ public class HadoopController {
         FileInputFormat.addInputPath(job, new Path(HDFS_FILE_DIRECTORY + "/mapreduce-output"));
         FileOutputFormat.setOutputPath(job, outputPath);
 
-        job.waitForCompletion(true);
+        SwingWorker<Void, JobTrackerResult> swingWorker = new SwingWorker<Void, JobTrackerResult>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                job.waitForCompletion(true);
+                return null;
+            }
+        };
+        swingWorker.execute();
 
         JobMonitor jobMonitor = new JobMonitor(job, jobListener);
         jobMonitor.monitor();
@@ -329,7 +365,14 @@ public class HadoopController {
         FileInputFormat.addInputPath(job, new Path(HDFS_FILE_DIRECTORY + "/mapreduce-output"));
         FileOutputFormat.setOutputPath(job, outputPath);
 
-        job.waitForCompletion(true);
+        SwingWorker<Void, JobTrackerResult> swingWorker = new SwingWorker<Void, JobTrackerResult>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                job.waitForCompletion(true);
+                return null;
+            }
+        };
+        swingWorker.execute();
 
         JobMonitor jobMonitor = new JobMonitor(job, jobListener);
         jobMonitor.monitor();

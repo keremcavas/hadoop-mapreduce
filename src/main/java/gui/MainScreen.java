@@ -100,6 +100,8 @@ public class MainScreen {
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
 
         JTextArea textArea = new JTextArea();
+        textArea.setLineWrap(true);
+        textArea.setWrapStyleWord(true);
 
         HadoopController.JobListener jobListener = new HadoopController.JobListener() {
             @Override
