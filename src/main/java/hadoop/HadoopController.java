@@ -69,7 +69,7 @@ public class HadoopController {
         jobListener.addMessage("File added to hdfs successfully");
 
         int firstNLine = 5;
-        jobListener.addMessage("Trying to read first" + firstNLine + "line of the input file from hdfs:");
+        jobListener.addMessage("Trying to read first " + firstNLine + " line of the input file from hdfs:");
         jobListener.addMessage(HdfsReader.read(firstNLine, inputPath, hdfs));
 
         return FILE_ADDED_SUCCESSFULLY;
@@ -117,7 +117,7 @@ public class HadoopController {
         pushMessage("[INFO] total time in millis = " + (endTime - startTime));
 
         int firstNLine = 5;
-        pushMessage("First" + firstNLine + "line of mapped and reduced file:");
+        pushMessage("First " + firstNLine + " line of mapped and reduced file:");
         jobListener.addMessage(HdfsReader.read(
                 firstNLine, new Path(HDFS_FILE_DIRECTORY + "/mapreduce-output/part-r-00000"), hdfs));
     }

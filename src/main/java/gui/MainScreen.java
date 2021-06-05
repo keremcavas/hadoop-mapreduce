@@ -104,24 +104,44 @@ public class MainScreen {
         HadoopController.JobListener jobListener = new HadoopController.JobListener() {
             @Override
             public void addMessage(String s) {
-                textArea.append(
-                        System.lineSeparator() + Time.dateWithMilliseconds(System.currentTimeMillis()) + " => " + s);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        textArea.append(
+                                System.lineSeparator() + Time.dateWithMilliseconds(System.currentTimeMillis()) + " => " + s);
+                    }
+                });
             }
 
             @Override
             public void addMessage(long timestamp, String s) {
-                textArea.append(System.lineSeparator() + Time.dateWithMilliseconds(timestamp) + " => " + s);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        textArea.append(System.lineSeparator() + Time.dateWithMilliseconds(timestamp) + " => " + s);
+                    }
+                });
             }
 
             @Override
             public void refreshLastLine(String message) {
-                Utility.changeLastLine(textArea,
-                        Time.dateWithMilliseconds(System.currentTimeMillis()) + " => " + message);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Utility.changeLastLine(textArea,
+                                Time.dateWithMilliseconds(System.currentTimeMillis()) + " => " + message);
+                    }
+                });
             }
 
             @Override
             public void clear() {
-                textArea.setText("");
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        textArea.setText("");
+                    }
+                });
             }
         };
         HadoopController.attachJobListener(jobListener);
