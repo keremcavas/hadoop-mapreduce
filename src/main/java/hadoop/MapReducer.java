@@ -366,11 +366,11 @@ public class MapReducer {
         }
     }
 
-    static class ReduceMedian extends Reducer<Text, CustomWritables.MedianWritable, Text, IntWritable> {
+    static class ReduceMedian extends Reducer<Text, CustomWritables.MedianWritable, Text, LongWritable> {
 
-        private int pairCount;
-        private int wordCount;
-        private Map<Integer, Integer> frequencies;
+        private long pairCount;
+        private long wordCount;
+        private Map<Long, Long> frequencies;
 
         @Override
         protected void setup(Context context) throws IOException, InterruptedException {
@@ -379,9 +379,9 @@ public class MapReducer {
             frequencies = new TreeMap<>(); // always sorted by key
         }
 
-        private void putToMap(int key, int value) {
+        private void putToMap(long key, long value) {
             if (frequencies.containsKey(key)) {
-                int x = frequencies.get(key);
+                long x = frequencies.get(key);
                 frequencies.put(key, value + x);
             } else {
                 frequencies.put(key, value);
@@ -393,8 +393,8 @@ public class MapReducer {
             for (CustomWritables.MedianWritable value : values) {
                 pairCount += value.getPairCount();
                 wordCount += value.getTotalWord();
-                ArrayList<Pair<Integer, Integer>> pairs = value.getFrequencies();
-                for (Pair<Integer, Integer> pair : pairs) {
+                ArrayList<Pair<Long, Long>> pairs = value.getFrequencies();
+                for (Pair<Long, Long> pair : pairs) {
                     putToMap(pair.getKey(), pair.getValue());
                 }
             }
@@ -403,10 +403,10 @@ public class MapReducer {
         @Override
         protected void cleanup(Context context) throws IOException, InterruptedException {
 
-            final int medianIndex = wordCount / 2;
+            final long medianIndex = wordCount / 2;
             int currentIndex = 0;
-            int passedWord = 0;
-            ArrayList<Map.Entry<Integer, Integer>> frequencyList = new ArrayList<>(frequencies.entrySet());
+            long passedWord = 0;
+            ArrayList<Map.Entry<Long, Long>> frequencyList = new ArrayList<>(frequencies.entrySet());
 
             while (passedWord < medianIndex) {
                 passedWord += frequencyList.get(currentIndex).getKey();
@@ -416,7 +416,7 @@ public class MapReducer {
                 currentIndex++;
             }
 
-            context.write(new Text("median"), new IntWritable(frequencyList.get(currentIndex).getKey()));
+            context.write(new Text("median"), new LongWritable(frequencyList.get(currentIndex).getKey()));
         }
     }
 
@@ -424,7 +424,7 @@ public class MapReducer {
     /**
      * uses output of ReduceCount as an input
      */
-    static class MapSum extends Mapper<LongWritable, Text, Text, IntWritable> {
+    static class MapSum extends Mapper<LongWritable, Text, Text, LongWritable> {
         @Override
         protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 
@@ -434,21 +434,21 @@ public class MapReducer {
             StringTokenizer tokenizer = new StringTokenizer(line);
             tokenizer.nextToken(); // first element of line is key (word) and it does not needed for counting total
             count = tokenizer.nextToken();
-            int x = Integer.parseInt(count);
+            long x = Integer.parseInt(count);
 
             value.set("total");
-            context.write(value, new IntWritable(x));
+            context.write(value, new LongWritable(x));
         }
     }
 
-    static class ReduceSum extends Reducer<Text, IntWritable, Text, IntWritable> {
+    static class ReduceSum extends Reducer<Text, LongWritable, Text, LongWritable> {
         @Override
-        protected void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
-            int sum = 0;
-            for (IntWritable value : values) {
+        protected void reduce(Text key, Iterable<LongWritable> values, Context context) throws IOException, InterruptedException {
+            long sum = 0;
+            for (LongWritable value : values) {
                 sum += value.get();
             }
-            context.write(key, new IntWritable(sum));
+            context.write(key, new LongWritable(sum));
         }
     }
 

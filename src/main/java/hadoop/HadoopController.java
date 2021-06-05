@@ -6,6 +6,7 @@ import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
@@ -304,7 +305,7 @@ public class HadoopController {
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(CustomWritables.MedianWritable.class);
         job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(IntWritable.class);
+        job.setOutputValueClass(LongWritable.class);
 
         Path outputPath = new Path(HDFS_FILE_DIRECTORY + "/median-output");
 
@@ -352,9 +353,9 @@ public class HadoopController {
         job.setReducerClass(MapReducer.ReduceSum.class);
 
         job.setMapOutputKeyClass(Text.class);
-        job.setMapOutputValueClass(IntWritable.class);
+        job.setMapOutputValueClass(LongWritable.class);
         job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(IntWritable.class);
+        job.setOutputValueClass(LongWritable.class);
 
         Path outputPath = new Path(HDFS_FILE_DIRECTORY + "/sum-output");
 
