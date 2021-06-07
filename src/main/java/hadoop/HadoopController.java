@@ -107,12 +107,7 @@ public class HadoopController {
         FileInputFormat.addInputPath(job, new Path(HDFS_FILE_DIRECTORY + "/mapreduce-input"));
         FileOutputFormat.setOutputPath(job, outputPath);
 
-        Thread.UncaughtExceptionHandler h = new Thread.UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(Thread th, Throwable ex) {
-                System.out.println("Uncaught exception: " + ex);
-            }
-        };
+        Thread.UncaughtExceptionHandler h = (th, ex) -> System.out.println("Uncaught exception: " + ex);
 
         Thread jobThread = new Thread(() -> {
             try {
@@ -137,13 +132,8 @@ public class HadoopController {
 
         SwingWorker<Void, JobTrackerResult> swingWorker = new JobWorker() {
             @Override
-            protected Void doInBackground() throws Exception {
-                JobMonitor.UITrigger uiTrigger = new JobMonitor.UITrigger() {
-                    @Override
-                    public void push(JobTrackerResult jobTrackerResult) {
-                        publish(jobTrackerResult);
-                    }
-                };
+            protected Void doInBackground() {
+                JobMonitor.UITrigger uiTrigger = this::publish;
 
                 JobMonitor jobMonitor = new JobMonitor(job, jobListener);
                 JobMonitor.setUiTrigger(uiTrigger);
@@ -158,7 +148,7 @@ public class HadoopController {
 
         jobListener.clear();
 
-        long startTime, endTime;
+        long startTime;
         startTime = System.currentTimeMillis();
 
         pushMessage(startTime, "Mapreduce started");
@@ -183,27 +173,40 @@ public class HadoopController {
         FileInputFormat.addInputPath(job, new Path(HDFS_FILE_DIRECTORY + "/mapreduce-output"));
         FileOutputFormat.setOutputPath(job, outputPath);
 
-        SwingWorker<Void, JobTrackerResult> swingWorker = new SwingWorker<Void, JobTrackerResult>() {
-            @Override
-            protected Void doInBackground() throws Exception {
+        Thread.UncaughtExceptionHandler h = (th, ex) -> System.out.println("Uncaught exception: " + ex);
+
+        Thread jobThread = new Thread(() -> {
+            try {
                 job.waitForCompletion(true);
+
+                long endTime = System.currentTimeMillis();
+
+                pushMessage(endTime, "Mapreduce finish");
+
+                pushMessage("Total time in millis => " + (endTime - startTime));
+
+                jobListener.addMessage("Result of mapreduce:");
+                jobListener.addMessage(HdfsReader.read(
+                        1, new Path(HDFS_FILE_DIRECTORY + "/max-output/part-r-00000"), hdfs));
+            } catch (IOException | ClassNotFoundException | InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+        jobThread.setUncaughtExceptionHandler(h);
+        jobThread.start();
+
+        SwingWorker<Void, JobTrackerResult> swingWorker = new JobWorker() {
+            @Override
+            protected Void doInBackground() {
+                JobMonitor.UITrigger uiTrigger = this::publish;
+
+                JobMonitor jobMonitor = new JobMonitor(job, jobListener);
+                JobMonitor.setUiTrigger(uiTrigger);
+                jobMonitor.monitor();
                 return null;
             }
         };
         swingWorker.execute();
-
-        JobMonitor jobMonitor = new JobMonitor(job, jobListener);
-        jobMonitor.monitor();
-
-        endTime = System.currentTimeMillis();
-
-        pushMessage(endTime, "Mapreduce finish");
-
-        pushMessage("Total time in millis => " + (endTime - startTime));
-
-        jobListener.addMessage("Result of mapreduce:");
-        jobListener.addMessage(HdfsReader.read(
-                1, new Path(HDFS_FILE_DIRECTORY + "/max-output/part-r-00000"), hdfs));
     }
 
     public void average() throws IOException, ClassNotFoundException, InterruptedException {
@@ -235,12 +238,7 @@ public class HadoopController {
         FileInputFormat.addInputPath(job, new Path(HDFS_FILE_DIRECTORY + "/mapreduce-output"));
         FileOutputFormat.setOutputPath(job, outputPath);
 
-        Thread.UncaughtExceptionHandler h = new Thread.UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(Thread th, Throwable ex) {
-                System.out.println("Uncaught exception: " + ex);
-            }
-        };
+        Thread.UncaughtExceptionHandler h = (th, ex) -> System.out.println("Uncaught exception: " + ex);
 
         Thread jobThread = new Thread(() -> {
             try {
@@ -264,13 +262,8 @@ public class HadoopController {
 
         SwingWorker<Void, JobTrackerResult> swingWorker = new JobWorker() {
             @Override
-            protected Void doInBackground() throws Exception {
-                JobMonitor.UITrigger uiTrigger = new JobMonitor.UITrigger() {
-                    @Override
-                    public void push(JobTrackerResult jobTrackerResult) {
-                        publish(jobTrackerResult);
-                    }
-                };
+            protected Void doInBackground() {
+                JobMonitor.UITrigger uiTrigger = this::publish;
 
                 JobMonitor jobMonitor = new JobMonitor(job, jobListener);
                 JobMonitor.setUiTrigger(uiTrigger);
@@ -285,7 +278,7 @@ public class HadoopController {
 
         jobListener.clear();
 
-        long startTime, endTime;
+        long startTime;
         startTime = System.currentTimeMillis();
 
         pushMessage(startTime, "Mapreduce started");
@@ -310,34 +303,48 @@ public class HadoopController {
         FileInputFormat.addInputPath(job, new Path(HDFS_FILE_DIRECTORY + "/mapreduce-output"));
         FileOutputFormat.setOutputPath(job, outputPath);
 
-        SwingWorker<Void, JobTrackerResult> swingWorker = new SwingWorker<Void, JobTrackerResult>() {
-            @Override
-            protected Void doInBackground() throws Exception {
+        Thread.UncaughtExceptionHandler h = (th, ex) -> System.out.println("Uncaught exception: " + ex);
+
+        Thread jobThread = new Thread(() -> {
+            try {
                 job.waitForCompletion(true);
+
+                long endTime = System.currentTimeMillis();
+
+                pushMessage(endTime, "Mapreduce finish");
+
+                pushMessage("Total time in millis => " + (endTime - startTime));
+
+                jobListener.addMessage("Result of mapreduce:");
+                jobListener.addMessage(HdfsReader.read(
+                        1, new Path(HDFS_FILE_DIRECTORY + "/stdev-output/part-r-00000"), hdfs));
+
+            } catch (IOException | InterruptedException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        });
+        jobThread.setUncaughtExceptionHandler(h);
+        jobThread.start();
+
+        SwingWorker<Void, JobTrackerResult> swingWorker = new JobWorker() {
+            @Override
+            protected Void doInBackground() {
+                JobMonitor.UITrigger uiTrigger = this::publish;
+
+                JobMonitor jobMonitor = new JobMonitor(job, jobListener);
+                JobMonitor.setUiTrigger(uiTrigger);
+                jobMonitor.monitor();
                 return null;
             }
         };
         swingWorker.execute();
-
-        JobMonitor jobMonitor = new JobMonitor(job, jobListener);
-        jobMonitor.monitor();
-
-        endTime = System.currentTimeMillis();
-
-        pushMessage(endTime, "Mapreduce finish");
-
-        pushMessage("Total time in millis => " + (endTime - startTime));
-
-        jobListener.addMessage("Result of mapreduce:");
-        jobListener.addMessage(HdfsReader.read(
-                1, new Path(HDFS_FILE_DIRECTORY + "/stdev-output/part-r-00000"), hdfs));
     }
 
     public void median() throws InterruptedException, IOException, ClassNotFoundException {
 
         jobListener.clear();
 
-        long startTime, endTime;
+        long startTime;
         startTime = System.currentTimeMillis();
 
         pushMessage(startTime, "Mapreduce started");
@@ -362,32 +369,46 @@ public class HadoopController {
         FileInputFormat.addInputPath(job, new Path(HDFS_FILE_DIRECTORY + "/mapreduce-output"));
         FileOutputFormat.setOutputPath(job, outputPath);
 
-        SwingWorker<Void, JobTrackerResult> swingWorker = new SwingWorker<Void, JobTrackerResult>() {
-            @Override
-            protected Void doInBackground() throws Exception {
+        Thread.UncaughtExceptionHandler h = (th, ex) -> System.out.println("Uncaught exception: " + ex);
+
+        Thread jobThread = new Thread(() -> {
+            try {
                 job.waitForCompletion(true);
+
+                long endTime = System.currentTimeMillis();
+
+                pushMessage(endTime, "Mapreduce finish");
+
+                pushMessage("Total time in millis => " + (endTime - startTime));
+
+                jobListener.addMessage("Result of mapreduce:");
+                jobListener.addMessage(HdfsReader.read(
+                        1, new Path(HDFS_FILE_DIRECTORY + "/median-output/part-r-00000"), hdfs));
+
+            } catch (IOException | InterruptedException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        });
+        jobThread.setUncaughtExceptionHandler(h);
+        jobThread.start();
+
+        SwingWorker<Void, JobTrackerResult> swingWorker = new JobWorker() {
+            @Override
+            protected Void doInBackground() {
+                JobMonitor.UITrigger uiTrigger = this::publish;
+
+                JobMonitor jobMonitor = new JobMonitor(job, jobListener);
+                JobMonitor.setUiTrigger(uiTrigger);
+                jobMonitor.monitor();
                 return null;
             }
         };
         swingWorker.execute();
-
-        JobMonitor jobMonitor = new JobMonitor(job, jobListener);
-        jobMonitor.monitor();
-
-        endTime = System.currentTimeMillis();
-
-        pushMessage(endTime, "Mapreduce finish");
-
-        pushMessage("Total time in millis => " + (endTime - startTime));
-
-        jobListener.addMessage("Result of mapreduce:");
-        jobListener.addMessage(HdfsReader.read(
-                1, new Path(HDFS_FILE_DIRECTORY + "/median-output/part-r-00000"), hdfs));
     }
 
     public void sum() throws InterruptedException, IOException, ClassNotFoundException {
 
-        long startTime, endTime;
+        long startTime;
         startTime = System.currentTimeMillis();
 
         pushMessage(startTime, "Mapreduce started");
@@ -412,27 +433,41 @@ public class HadoopController {
         FileInputFormat.addInputPath(job, new Path(HDFS_FILE_DIRECTORY + "/mapreduce-output"));
         FileOutputFormat.setOutputPath(job, outputPath);
 
-        SwingWorker<Void, JobTrackerResult> swingWorker = new SwingWorker<Void, JobTrackerResult>() {
-            @Override
-            protected Void doInBackground() throws Exception {
+        Thread.UncaughtExceptionHandler h = (th, ex) -> System.out.println("Uncaught exception: " + ex);
+
+        Thread jobThread = new Thread(() -> {
+            try {
                 job.waitForCompletion(true);
+
+                long endTime = System.currentTimeMillis();
+
+                pushMessage(endTime, "Mapreduce finish");
+
+                pushMessage("Total time in millis => " + (endTime - startTime));
+
+                jobListener.addMessage("Result of mapreduce:");
+                jobListener.addMessage(HdfsReader.read(
+                        1, new Path(HDFS_FILE_DIRECTORY + "/sum-output/part-r-00000"), hdfs));
+
+            } catch (IOException | InterruptedException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        });
+        jobThread.setUncaughtExceptionHandler(h);
+        jobThread.start();
+
+        SwingWorker<Void, JobTrackerResult> swingWorker = new JobWorker() {
+            @Override
+            protected Void doInBackground() {
+                JobMonitor.UITrigger uiTrigger = this::publish;
+
+                JobMonitor jobMonitor = new JobMonitor(job, jobListener);
+                JobMonitor.setUiTrigger(uiTrigger);
+                jobMonitor.monitor();
                 return null;
             }
         };
         swingWorker.execute();
-
-        JobMonitor jobMonitor = new JobMonitor(job, jobListener);
-        jobMonitor.monitor();
-
-        endTime = System.currentTimeMillis();
-
-        pushMessage(endTime, "Mapreduce finish");
-
-        pushMessage("Total time in millis => " + (endTime - startTime));
-
-        jobListener.addMessage("Result of mapreduce:");
-        jobListener.addMessage(HdfsReader.read(
-                1, new Path(HDFS_FILE_DIRECTORY + "/sum-output/part-r-00000"), hdfs));
     }
 
     private void pushMessage(String message) {

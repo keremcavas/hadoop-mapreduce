@@ -12,12 +12,6 @@ public class JobTrackerResult {
 
     private static HadoopController.JobListener jobListener;
 
-    public JobTrackerResult(int type, long timestamp, String message) {
-        this.type = type;
-        this.timestamp = timestamp;
-        this.message = message;
-    }
-
     public JobTrackerResult(int type, String message) {
         this.type = type;
         this.message = message;

@@ -6,7 +6,7 @@ import java.util.List;
 public class JobWorker extends SwingWorker<Void, JobTrackerResult> {
 
     @Override
-    protected Void doInBackground() throws Exception {
+    protected Void doInBackground() {
         return null;
     }
 

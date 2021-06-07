@@ -30,6 +30,7 @@ public class JobMonitor {
     public void monitor() {
 
         JobTrackerResult.setJobListener(jobListener);
+        int currentJobCount = 1;
 
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
@@ -42,10 +43,18 @@ public class JobMonitor {
                         if (job.isComplete()) {
                             timer.cancel();
                             timer.purge();
+
+                            uiTrigger.push(new JobTrackerResult(JobTrackerResult.REFRESH, "map progress: 100%  " +
+                                    "-  reeduce progress: 100%"));
                         }
 
-                        uiTrigger.push(new JobTrackerResult(JobTrackerResult.REFRESH, "map progress: " + (job.mapProgress() * 100) + "%  " +
-                                "-  reeduce progress" + (job.reduceProgress() * 100) + "%"));
+                        long totalJobCount = job.getCounters().getGroup("Map-Reduce Framework")
+                                .findCounter("Map input records").getValue();
+
+                        uiTrigger.push(new JobTrackerResult(JobTrackerResult.REFRESH,
+                                "map progress: " + (job.mapProgress() * 100) + "%  " + "-  reeduce progress" +
+                                        (job.reduceProgress() * 100) + "% (" + currentJobCount + "/" +
+                                        totalJobCount + ")"));
 
                     } else if (job.getJobState() == JobStatus.State.SUCCEEDED ||
                             job.getJobState() == JobStatus.State.FAILED ||
