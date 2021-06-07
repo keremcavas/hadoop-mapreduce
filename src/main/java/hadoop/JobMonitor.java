@@ -56,8 +56,13 @@ public class JobMonitor {
                                         (job.reduceProgress() * 100) + "% (" + currentJobCount + "/" +
                                         totalJobCount + ")"));
 
-                    } else if (job.getJobState() == JobStatus.State.SUCCEEDED ||
-                            job.getJobState() == JobStatus.State.FAILED ||
+                    } else if (job.getJobState() == JobStatus.State.SUCCEEDED) {
+                        timer.cancel();
+                        timer.purge();
+
+                        uiTrigger.push(new JobTrackerResult(JobTrackerResult.REFRESH, "map progress: 100%  " +
+                                "-  reeduce progress: 100%"));
+                    } else if (job.getJobState() == JobStatus.State.FAILED ||
                             job.getJobState() == JobStatus.State.KILLED) {
                         timer.cancel();
                         timer.purge();

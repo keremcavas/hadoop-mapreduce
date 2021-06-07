@@ -10,20 +10,6 @@ import java.util.*;
 
 public class MapReducer {
 
-    public static void main(String[] args) {
-
-        double x = (double)5/3;
-        System.out.println(x);
-
-        /*
-        String line = "-----     fdgdffg    dfgd    Forwarded by Sara Shackleton/HOU/ECT on 03/28/2001 05:22 PM -----";
-        StringTokenizer tokenizer = new StringTokenizer(line);
-        while (tokenizer.hasMoreTokens()) {
-            System.out.println(tokenizer.nextToken());
-        }
-         */
-    }
-
     private static class Checker {
 
         private final static String[] trashStartingWords = {"Date:", "From:", "To:", "Subject:", "Cc:", "Mime-Version:",
@@ -345,6 +331,8 @@ public class MapReducer {
             count = tokenizer.nextToken();
             long x = Long.parseLong(count);
 
+            x = (long) ((x/100.)*100);
+
             if (frequencies.containsKey(x)) {
                 long old = frequencies.get(x);
                 frequencies.put(x, old + 1);
@@ -358,7 +346,8 @@ public class MapReducer {
 
         @Override
         protected void cleanup(Context context) throws IOException, InterruptedException {
-            CustomWritables.MedianWritable medianWritable = new CustomWritables.MedianWritable(pairCount, wordCount);
+            CustomWritables.MedianWritable medianWritable = new CustomWritables.MedianWritable(
+                    new LongWritable(pairCount), new LongWritable(wordCount));
             for (Map.Entry<Long, Long> entry : frequencies.entrySet()) {
                 medianWritable.addPair(entry.getKey(), entry.getValue());
             }
@@ -391,11 +380,11 @@ public class MapReducer {
         @Override
         protected void reduce(Text key, Iterable<CustomWritables.MedianWritable> values, Context context) throws IOException, InterruptedException {
             for (CustomWritables.MedianWritable value : values) {
-                pairCount += value.getPairCount();
-                wordCount += value.getTotalWord();
-                ArrayList<Pair<Long, Long>> pairs = value.getFrequencies();
-                for (Pair<Long, Long> pair : pairs) {
-                    putToMap(pair.getKey(), pair.getValue());
+                pairCount += value.getPairCount().get();
+                wordCount += value.getTotalWord().get();
+                ArrayList<Pair<LongWritable, LongWritable>> pairs = value.getFrequencies();
+                for (Pair<LongWritable, LongWritable> pair : pairs) {
+                    putToMap(pair.getKey().get(), pair.getValue().get());
                 }
             }
         }

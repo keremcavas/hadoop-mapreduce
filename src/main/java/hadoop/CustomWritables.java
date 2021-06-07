@@ -1,5 +1,6 @@
 package hadoop;
 
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Writable;
 import utility.Pair;
 
@@ -67,11 +68,11 @@ public class CustomWritables {
 
     public static class MedianWritable implements Writable {
 
-        private long pairCount;
-        private long totalWord;
-        private ArrayList<Pair<Long, Long>> frequencies; // ([x], [number of words occurred x times])
+        private LongWritable pairCount;
+        private LongWritable totalWord;
+        private ArrayList<Pair<LongWritable, LongWritable>> frequencies; // ([x], [number of words occurred x times])
 
-        public MedianWritable(int pairCount, int totalWord) {
+        public MedianWritable(LongWritable pairCount, LongWritable totalWord) {
             frequencies = new ArrayList<>();
             this.pairCount = pairCount;
             this.totalWord = totalWord;
@@ -81,46 +82,50 @@ public class CustomWritables {
         public MedianWritable() {
         }
 
-        public void setPairCount(long pairCount) {
+        public void setPairCount(LongWritable pairCount) {
             this.pairCount = pairCount;
         }
 
-        public void setTotalWord(long totalWord) {
+        public void setTotalWord(LongWritable totalWord) {
             this.totalWord = totalWord;
         }
 
         public void addPair(long x, long occurrences) {
-            frequencies.add(new Pair<>(x, occurrences));
+            frequencies.add(new Pair<>(new LongWritable(x), new LongWritable(occurrences)));
         }
 
-        public long getPairCount() {
+        public LongWritable getPairCount() {
             return pairCount;
         }
 
-        public long getTotalWord() {
+        public LongWritable getTotalWord() {
             return totalWord;
         }
 
-        public ArrayList<Pair<Long, Long>> getFrequencies() {
+        public ArrayList<Pair<LongWritable, LongWritable>> getFrequencies() {
             return frequencies;
         }
 
         @Override
         public void write(DataOutput dataOutput) throws IOException {
-            dataOutput.writeLong(pairCount);
-            dataOutput.writeLong(totalWord);
-            for (Pair<Long, Long> frequency : frequencies) {
-                dataOutput.writeLong(frequency.getKey());
-                dataOutput.writeLong(frequency.getValue());
+            pairCount.write(dataOutput);
+            totalWord.write(dataOutput);
+            for (Pair<LongWritable, LongWritable> frequency : frequencies) {
+                frequency.getKey().write(dataOutput);
+                frequency.getValue().write(dataOutput);
             }
         }
 
         @Override
         public void readFields(DataInput dataInput) throws IOException {
-            setPairCount(dataInput.readLong());
-            setTotalWord(dataInput.readLong());
-            for (int i = 0; i < pairCount; i++) {
-                addPair(dataInput.readLong(), dataInput.readLong());
+            pairCount.readFields(dataInput);
+            totalWord.readFields(dataInput);
+            LongWritable key = new LongWritable();
+            LongWritable value = new LongWritable();
+            for (int i = 0; i < pairCount.get(); i++) {
+                key.readFields(dataInput);
+                value.readFields(dataInput);
+                addPair(key.get(), value.get());
             }
         }
     }

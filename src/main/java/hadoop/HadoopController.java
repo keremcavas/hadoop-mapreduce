@@ -85,6 +85,7 @@ public class HadoopController {
         startTime = System.currentTimeMillis();
 
         pushMessage(startTime, "Mapreduce started");
+        pushMessage("progress:");
 
         Job job = Job.getInstance(configuration, "mapreduce");
 
@@ -152,6 +153,7 @@ public class HadoopController {
         startTime = System.currentTimeMillis();
 
         pushMessage(startTime, "Mapreduce started");
+        pushMessage("progress:");
 
         Job job = Job.getInstance(configuration, "max");
 
@@ -217,6 +219,7 @@ public class HadoopController {
         startTime = System.currentTimeMillis();
 
         pushMessage(startTime, "Mapreduce started");
+        pushMessage("progress:");
 
         Job job = Job.getInstance(configuration, "average");
 
@@ -282,6 +285,7 @@ public class HadoopController {
         startTime = System.currentTimeMillis();
 
         pushMessage(startTime, "Mapreduce started");
+        pushMessage("progress:");
 
         Job job = Job.getInstance(configuration, "stdev");
 
@@ -348,6 +352,7 @@ public class HadoopController {
         startTime = System.currentTimeMillis();
 
         pushMessage(startTime, "Mapreduce started");
+        pushMessage("progress:");
 
         Job job = Job.getInstance(configuration, "median");
 
@@ -412,6 +417,7 @@ public class HadoopController {
         startTime = System.currentTimeMillis();
 
         pushMessage(startTime, "Mapreduce started");
+        pushMessage("progress:");
 
         Job job = Job.getInstance(configuration, "sum");
 
