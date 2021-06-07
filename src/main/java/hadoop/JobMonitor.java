@@ -39,17 +39,13 @@ public class JobMonitor {
 
                     if (job.getJobState() == JobStatus.State.RUNNING) {
 
-                        try {
-                            if (job.isComplete()) {
-                                timer.cancel();
-                                timer.purge();
-                            }
-
-                            uiTrigger.push(new JobTrackerResult(JobTrackerResult.REFRESH, "map progress: " + (job.mapProgress() * 100) + "%  " +
-                                    "-  reeduce progress" + (job.reduceProgress() * 100) + "%"));
-                        } catch (IllegalStateException e) {
-                            e.printStackTrace();
+                        if (job.isComplete()) {
+                            timer.cancel();
+                            timer.purge();
                         }
+
+                        uiTrigger.push(new JobTrackerResult(JobTrackerResult.REFRESH, "map progress: " + (job.mapProgress() * 100) + "%  " +
+                                "-  reeduce progress" + (job.reduceProgress() * 100) + "%"));
 
                     } else if (job.getJobState() == JobStatus.State.SUCCEEDED ||
                             job.getJobState() == JobStatus.State.FAILED ||
@@ -57,7 +53,7 @@ public class JobMonitor {
                         timer.cancel();
                         timer.purge();
                     }
-                } catch (IOException | InterruptedException e) {
+                } catch (IOException | InterruptedException | IllegalStateException e) {
                     e.printStackTrace();
                 }
             }
