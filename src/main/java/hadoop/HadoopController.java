@@ -212,17 +212,25 @@ public class HadoopController {
         FileInputFormat.addInputPath(job, new Path(HDFS_FILE_DIRECTORY + "/mapreduce-output"));
         FileOutputFormat.setOutputPath(job, outputPath);
 
-        SwingWorker<Void, JobTrackerResult> swingWorker = new SwingWorker<Void, JobTrackerResult>() {
+        job.waitForCompletion(true);
+
+        SwingWorker<Void, JobTrackerResult> swingWorker = new JobWorker() {
             @Override
             protected Void doInBackground() throws Exception {
-                job.waitForCompletion(true);
+                JobMonitor.UITrigger uiTrigger = new JobMonitor.UITrigger() {
+                    @Override
+                    public void push(JobTrackerResult jobTrackerResult) {
+                        publish(jobTrackerResult);
+                    }
+                };
+
+                JobMonitor jobMonitor = new JobMonitor(job, jobListener);
+                JobMonitor.setUiTrigger(uiTrigger);
+                jobMonitor.monitor();
                 return null;
             }
         };
         swingWorker.execute();
-
-        JobMonitor jobMonitor = new JobMonitor(job, jobListener);
-        jobMonitor.monitor();
 
         endTime = System.currentTimeMillis();
 

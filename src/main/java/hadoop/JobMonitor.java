@@ -2,7 +2,6 @@ package hadoop;
 
 import org.apache.hadoop.mapreduce.Job;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -12,33 +11,42 @@ public class JobMonitor {
     private final Job job;
     private final HadoopController.JobListener jobListener;
 
+    private static UITrigger uiTrigger;
+
+    public interface UITrigger {
+        void push(JobTrackerResult jobTrackerResult);
+    }
+
     public JobMonitor(Job job, HadoopController.JobListener jobListener) {
         this.job = job;
         this.jobListener = jobListener;
     }
 
+    public static void setUiTrigger(UITrigger uiTrigger) {
+        JobMonitor.uiTrigger = uiTrigger;
+    }
+
     public void monitor() {
 
-        SwingUtilities.invokeLater(() -> {
+        JobTrackerResult.setJobListener(jobListener);
 
-            Timer timer = new Timer();
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    try {
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                try {
 
-                        if (job.isComplete()) {
-                            timer.cancel();
-                            timer.purge();
-                        }
-
-                        jobListener.refreshLastLine("map progress: " + (job.mapProgress() * 100) + "%  " +
-                                "-  reeduce progress" + (job.reduceProgress() * 100) + "%");
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    if (job.isComplete()) {
+                        timer.cancel();
+                        timer.purge();
                     }
+
+                    uiTrigger.push(new JobTrackerResult(JobTrackerResult.REFRESH, "map progress: " + (job.mapProgress() * 100) + "%  " +
+                            "-  reeduce progress" + (job.reduceProgress() * 100) + "%"));
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            }, 0, 3000);
-        });
+            }
+            }, 0, 1000);
     }
 }

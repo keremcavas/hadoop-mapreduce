@@ -10,7 +10,7 @@ public class JobTrackerResult {
     private final long timestamp;
     private final String message;
 
-    private HadoopController.JobListener jobListener;
+    private static HadoopController.JobListener jobListener;
 
     public JobTrackerResult(int type, long timestamp, String message) {
         this.type = type;
@@ -24,9 +24,10 @@ public class JobTrackerResult {
         timestamp = -1;
     }
 
-    public void setJobListener(HadoopController.JobListener jobListener) {
-        this.jobListener = jobListener;
+    public static void setJobListener(HadoopController.JobListener jobListener) {
+        JobTrackerResult.jobListener = jobListener;
     }
+
 
     public void publish() {
         switch (type) {
