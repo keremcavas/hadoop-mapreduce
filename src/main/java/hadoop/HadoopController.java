@@ -81,7 +81,7 @@ public class HadoopController {
 
         jobListener.clear();
 
-        long startTime, endTime;
+        long startTime;
         startTime = System.currentTimeMillis();
 
         pushMessage(startTime, "Mapreduce started");
@@ -107,28 +107,51 @@ public class HadoopController {
         FileInputFormat.addInputPath(job, new Path(HDFS_FILE_DIRECTORY + "/mapreduce-input"));
         FileOutputFormat.setOutputPath(job, outputPath);
 
-        SwingWorker<Void, JobTrackerResult> swingWorker = new SwingWorker<Void, JobTrackerResult>() {
+        Thread.UncaughtExceptionHandler h = new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread th, Throwable ex) {
+                System.out.println("Uncaught exception: " + ex);
+            }
+        };
+
+        Thread jobThread = new Thread(() -> {
+            try {
+                job.waitForCompletion(true);
+
+                long endTime = System.currentTimeMillis();
+
+                pushMessage(endTime, "Mapreduce finish");
+
+                pushMessage("Total time in millis => " + (endTime - startTime));
+
+                int firstNLine = 5;
+                pushMessage("First " + firstNLine + " line of mapped and reduced file:");
+                jobListener.addMessage(HdfsReader.read(
+                        firstNLine, new Path(HDFS_FILE_DIRECTORY + "/mapreduce-output/part-r-00000"), hdfs));
+            } catch (IOException | InterruptedException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        });
+        jobThread.setUncaughtExceptionHandler(h);
+        jobThread.start();
+
+        SwingWorker<Void, JobTrackerResult> swingWorker = new JobWorker() {
             @Override
             protected Void doInBackground() throws Exception {
-                job.waitForCompletion(true);
+                JobMonitor.UITrigger uiTrigger = new JobMonitor.UITrigger() {
+                    @Override
+                    public void push(JobTrackerResult jobTrackerResult) {
+                        publish(jobTrackerResult);
+                    }
+                };
+
+                JobMonitor jobMonitor = new JobMonitor(job, jobListener);
+                JobMonitor.setUiTrigger(uiTrigger);
+                jobMonitor.monitor();
                 return null;
             }
         };
         swingWorker.execute();
-
-        JobMonitor jobMonitor = new JobMonitor(job, jobListener);
-        jobMonitor.monitor();
-
-        endTime = System.currentTimeMillis();
-
-        pushMessage(endTime, "Mapreduce finish");
-
-        pushMessage("[INFO] total time in millis = " + (endTime - startTime));
-
-        int firstNLine = 5;
-        pushMessage("First " + firstNLine + " line of mapped and reduced file:");
-        jobListener.addMessage(HdfsReader.read(
-                firstNLine, new Path(HDFS_FILE_DIRECTORY + "/mapreduce-output/part-r-00000"), hdfs));
     }
 
     public void max() throws IOException, ClassNotFoundException, InterruptedException {
@@ -187,7 +210,7 @@ public class HadoopController {
 
         jobListener.clear();
 
-        long startTime, endTime;
+        long startTime;
         startTime = System.currentTimeMillis();
 
         pushMessage(startTime, "Mapreduce started");
@@ -222,6 +245,16 @@ public class HadoopController {
         Thread jobThread = new Thread(() -> {
             try {
                 job.waitForCompletion(true);
+
+                long endTime = System.currentTimeMillis();
+
+                pushMessage(endTime, "Mapreduce finish");
+
+                pushMessage("Total time in millis => " + (endTime - startTime));
+
+                jobListener.addMessage("Result of mapreduce:");
+                jobListener.addMessage(HdfsReader.read(
+                        1, new Path(HDFS_FILE_DIRECTORY + "/average-output/part-r-00000"), hdfs));
             } catch (IOException | InterruptedException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
@@ -246,16 +279,6 @@ public class HadoopController {
             }
         };
         swingWorker.execute();
-
-        endTime = System.currentTimeMillis();
-
-        pushMessage(endTime, "Mapreduce finish");
-
-        pushMessage("Total time in millis => " + (endTime - startTime));
-
-        jobListener.addMessage("Result of mapreduce:");
-        jobListener.addMessage(HdfsReader.read(
-                1, new Path(HDFS_FILE_DIRECTORY + "/average-output/part-r-00000"), hdfs));
     }
 
     public void standardDeviation() throws IOException, ClassNotFoundException, InterruptedException {
