@@ -117,8 +117,13 @@ public class MainScreen {
 
             @Override
             public void refreshLastLine(String message) {
-                Utility.changeLastLine(textArea,
-                        Time.dateWithMilliseconds(System.currentTimeMillis()) + " => " + message);
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        Utility.changeLastLine(textArea,
+                                Time.dateWithMilliseconds(System.currentTimeMillis()) + " => " + message);
+                    }
+                });
             }
 
             @Override
