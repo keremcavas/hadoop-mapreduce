@@ -1,6 +1,8 @@
 package hadoop;
 
+import org.apache.hadoop.mapred.RunningJob;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.JobStatus;
 
 import java.io.IOException;
 import java.util.Timer;
@@ -36,14 +38,22 @@ public class JobMonitor {
             public void run() {
                 try {
 
-                    if (job.isComplete()) {
+                    if (job.getJobState() == JobStatus.State.RUNNING) {
+
+                        if (job.isComplete()) {
+                            timer.cancel();
+                            timer.purge();
+                        }
+
+                        uiTrigger.push(new JobTrackerResult(JobTrackerResult.REFRESH, "map progress: " + (job.mapProgress() * 100) + "%  " +
+                                "-  reeduce progress" + (job.reduceProgress() * 100) + "%"));
+                    } else if (job.getJobState() == JobStatus.State.SUCCEEDED ||
+                            job.getJobState() == JobStatus.State.FAILED ||
+                            job.getJobState() == JobStatus.State.KILLED) {
                         timer.cancel();
                         timer.purge();
                     }
-
-                    uiTrigger.push(new JobTrackerResult(JobTrackerResult.REFRESH, "map progress: " + (job.mapProgress() * 100) + "%  " +
-                            "-  reeduce progress" + (job.reduceProgress() * 100) + "%"));
-                } catch (IOException e) {
+                } catch (IOException | InterruptedException e) {
                     e.printStackTrace();
                 }
             }
