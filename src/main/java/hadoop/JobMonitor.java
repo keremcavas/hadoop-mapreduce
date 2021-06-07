@@ -1,6 +1,5 @@
 package hadoop;
 
-import org.apache.hadoop.mapred.RunningJob;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.JobStatus;
 
@@ -40,13 +39,18 @@ public class JobMonitor {
 
                     if (job.getJobState() == JobStatus.State.RUNNING) {
 
-                        if (job.isComplete()) {
-                            timer.cancel();
-                            timer.purge();
+                        try {
+                            if (job.isComplete()) {
+                                timer.cancel();
+                                timer.purge();
+                            }
+
+                            uiTrigger.push(new JobTrackerResult(JobTrackerResult.REFRESH, "map progress: " + (job.mapProgress() * 100) + "%  " +
+                                    "-  reeduce progress" + (job.reduceProgress() * 100) + "%"));
+                        } catch (IllegalStateException e) {
+                            e.printStackTrace();
                         }
 
-                        uiTrigger.push(new JobTrackerResult(JobTrackerResult.REFRESH, "map progress: " + (job.mapProgress() * 100) + "%  " +
-                                "-  reeduce progress" + (job.reduceProgress() * 100) + "%"));
                     } else if (job.getJobState() == JobStatus.State.SUCCEEDED ||
                             job.getJobState() == JobStatus.State.FAILED ||
                             job.getJobState() == JobStatus.State.KILLED) {
