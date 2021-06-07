@@ -212,7 +212,22 @@ public class HadoopController {
         FileInputFormat.addInputPath(job, new Path(HDFS_FILE_DIRECTORY + "/mapreduce-output"));
         FileOutputFormat.setOutputPath(job, outputPath);
 
-        job.waitForCompletion(true);
+        Thread.UncaughtExceptionHandler h = new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread th, Throwable ex) {
+                System.out.println("Uncaught exception: " + ex);
+            }
+        };
+
+        Thread jobThread = new Thread(() -> {
+            try {
+                job.waitForCompletion(true);
+            } catch (IOException | InterruptedException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        });
+        jobThread.setUncaughtExceptionHandler(h);
+        jobThread.start();
 
         SwingWorker<Void, JobTrackerResult> swingWorker = new JobWorker() {
             @Override
