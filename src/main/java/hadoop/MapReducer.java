@@ -323,7 +323,7 @@ public class MapReducer {
      */
     static class MapMedian extends Mapper<LongWritable, Text, Text, CustomWritables.MedianWritable> {
 
-        private HashMap<Integer, Integer> frequencies;
+        private HashMap<Long, Long> frequencies;
         private int pairCount;
         private int wordCount;
 
@@ -343,13 +343,13 @@ public class MapReducer {
             StringTokenizer tokenizer = new StringTokenizer(line);
             tokenizer.nextToken(); // first element of line is key (word) and it does not needed for counting median
             count = tokenizer.nextToken();
-            int x = Integer.parseInt(count);
+            long x = Long.parseLong(count);
 
             if (frequencies.containsKey(x)) {
-                int old = frequencies.get(x);
+                long old = frequencies.get(x);
                 frequencies.put(x, old + 1);
             } else {
-                frequencies.put(x, 1);
+                frequencies.put(x, 1L);
                 pairCount++;
             }
 
@@ -359,7 +359,7 @@ public class MapReducer {
         @Override
         protected void cleanup(Context context) throws IOException, InterruptedException {
             CustomWritables.MedianWritable medianWritable = new CustomWritables.MedianWritable(pairCount, wordCount);
-            for (Map.Entry<Integer, Integer> entry : frequencies.entrySet()) {
+            for (Map.Entry<Long, Long> entry : frequencies.entrySet()) {
                 medianWritable.addPair(entry.getKey(), entry.getValue());
             }
             context.write(new Text("key"), medianWritable);
@@ -409,7 +409,7 @@ public class MapReducer {
             ArrayList<Map.Entry<Long, Long>> frequencyList = new ArrayList<>(frequencies.entrySet());
 
             while (passedWord < medianIndex) {
-                passedWord += frequencyList.get(currentIndex).getKey();
+                passedWord += frequencyList.get(currentIndex).getKey() * frequencyList.get(currentIndex).getValue();
                 if (passedWord > medianIndex) {
                     currentIndex--;
                 }
