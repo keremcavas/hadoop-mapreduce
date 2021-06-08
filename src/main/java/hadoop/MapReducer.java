@@ -10,48 +10,6 @@ import java.util.*;
 
 public class MapReducer {
 
-    private static class Checker {
-
-        private final static String[] trashStartingWords = {"Date:", "From:", "To:", "Subject:", "Cc:", "Mime-Version:",
-                "Content-Type:", "Content-Transfer-Encoding:", "Bcc:", "X-From:", "X-To:", "X-cc:", "X-bcc:", "X-Folder:",
-                "X-Origin:", "X-FileName:", "-----", "cc:", "\"", "Sent:", "Flight", "Depart:", "Arrive:", "Seats:",
-                "Freq.", "Meal:", "Status:", "Return-Path:", "Message-ID:", "Received:"};
-
-        private final static String[] trashWords = {">", ">>", "\"", ",", "-----", "[IMAGE]"};
-
-        protected static boolean lineCheck(String line) {
-
-            StringTokenizer tokenizer = new StringTokenizer(line);
-            if (tokenizer.hasMoreTokens()) {
-                String first = tokenizer.nextToken();
-
-                if (first.charAt(0) == '\"') {
-                    return false;
-                }
-
-                for (String trashWord : trashStartingWords) {
-                    if (first.equals(trashWord)) {
-                        return false;
-                    }
-                }
-
-            } else {
-                return false;
-            }
-
-            return true;
-        }
-
-        protected static boolean wordCheck(String word) {
-            for (String trashWord : trashWords) {
-                if (word.equals(trashWord)) {
-                    return false;
-                }
-            }
-            return true;
-        }
-    }
-
     /**
      * Uses csv file as an input
      */
@@ -318,11 +276,6 @@ public class MapReducer {
             tokenizer.nextToken(); // first element of line is key (word) and it does not needed for counting median
             count = tokenizer.nextToken();
 
-            long x = Long.parseLong(count);
-
-            x = (long) ((x/100.)*100);
-            count = String.valueOf(x);
-
             context.write(new Text(count), new LongWritable(1));
         }
     }
@@ -362,7 +315,7 @@ public class MapReducer {
         @Override
         protected void cleanup(Context context) throws IOException, InterruptedException {
 
-            long medianIndex = wordCount / 2;
+            long medianIndex;
             int currentIndex = 0;
             long passedWord = 0;
             ArrayList<Map.Entry<Long, Long>> frequencyList = new ArrayList<>(frequencies.entrySet());

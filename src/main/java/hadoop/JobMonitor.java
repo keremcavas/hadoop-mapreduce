@@ -30,7 +30,6 @@ public class JobMonitor {
     public void monitor() {
 
         JobTrackerResult.setJobListener(jobListener);
-        int currentJobCount = 1;
 
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
@@ -44,23 +43,19 @@ public class JobMonitor {
                             timer.cancel();
                             timer.purge();
 
-                            uiTrigger.push(new JobTrackerResult(JobTrackerResult.REFRESH, "map progress: 100%  " +
+                            uiTrigger.push(new JobTrackerResult(JobTrackerResult.APPEND, "map progress: 100%  " +
                                     "-  reeduce progress: 100%"));
                         }
 
-                        long totalJobCount = job.getCounters().getGroup("Map-Reduce Framework")
-                                .findCounter("Map input records").getValue();
-
                         uiTrigger.push(new JobTrackerResult(JobTrackerResult.REFRESH,
-                                "map progress: " + (job.mapProgress() * 100) + "%  " + "-  reeduce progress" +
-                                        (job.reduceProgress() * 100) + "% (" + currentJobCount + "/" +
-                                        totalJobCount + ")"));
+                                "map progress: " + (job.mapProgress() * 100) + "%  " + "-  reduce progress" +
+                                        (job.reduceProgress() * 100) + "%"));
 
                     } else if (job.getJobState() == JobStatus.State.SUCCEEDED) {
                         timer.cancel();
                         timer.purge();
 
-                        uiTrigger.push(new JobTrackerResult(JobTrackerResult.REFRESH, "map progress: 100%  " +
+                        uiTrigger.push(new JobTrackerResult(JobTrackerResult.APPEND, "map progress: 100%  " +
                                 "-  reeduce progress: 100%"));
                     } else if (job.getJobState() == JobStatus.State.FAILED ||
                             job.getJobState() == JobStatus.State.KILLED) {

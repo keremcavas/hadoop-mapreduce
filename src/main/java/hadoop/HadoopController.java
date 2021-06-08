@@ -413,6 +413,8 @@ public class HadoopController {
 
     public void sum() throws InterruptedException, IOException, ClassNotFoundException {
 
+        jobListener.clear();
+
         long startTime;
         startTime = System.currentTimeMillis();
 
