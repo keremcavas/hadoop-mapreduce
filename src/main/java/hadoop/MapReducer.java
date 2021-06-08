@@ -60,14 +60,13 @@ public class MapReducer {
         protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
             String line = value.toString();
 
-            if (Checker.lineCheck(line)) {
-                StringTokenizer tokenizer = new StringTokenizer(line);
-                while (tokenizer.hasMoreTokens()) {
-                    String word = tokenizer.nextToken();
-                    if (Checker.wordCheck(word)) {
-                        value.set(word);
-                        context.write(value, new IntWritable(1));
-                    }
+            StringTokenizer tokenizer = new StringTokenizer(line);
+            String word;
+            while (tokenizer.hasMoreTokens()) {
+                word = tokenizer.nextToken();
+                if (word.matches("^[a-zA-Z]+$")) {
+                    value.set(word);
+                    context.write(value, new IntWritable(1));
                 }
             }
         }
@@ -363,7 +362,7 @@ public class MapReducer {
         @Override
         protected void cleanup(Context context) throws IOException, InterruptedException {
 
-            long medianIndex;
+            long medianIndex = wordCount / 2;
             int currentIndex = 0;
             long passedWord = 0;
             ArrayList<Map.Entry<Long, Long>> frequencyList = new ArrayList<>(frequencies.entrySet());
