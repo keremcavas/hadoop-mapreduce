@@ -348,6 +348,11 @@ public class HadoopController {
 
         jobListener.clear();
 
+        if (MapReducer.ReduceMedian.wordCount == -1) {
+            pushMessage("You should find sum, before execute median");
+            return;
+        }
+
         long startTime;
         startTime = System.currentTimeMillis();
 

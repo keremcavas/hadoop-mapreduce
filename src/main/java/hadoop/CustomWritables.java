@@ -70,7 +70,7 @@ public class CustomWritables {
 
         private LongWritable pairCount;
         private LongWritable totalWord;
-        private ArrayList<Pair<LongWritable, LongWritable>> frequencies; // ([x], [number of words occurred x times])
+        private final ArrayList<Pair<LongWritable, LongWritable>> frequencies; // ([x], [number of words occurred x times])
 
         public MedianWritable(LongWritable pairCount, LongWritable totalWord) {
             frequencies = new ArrayList<>();
@@ -80,6 +80,7 @@ public class CustomWritables {
 
         // default constructor for mapreduce write tasks
         public MedianWritable() {
+            frequencies = new ArrayList<>();
         }
 
         public void setPairCount(LongWritable pairCount) {

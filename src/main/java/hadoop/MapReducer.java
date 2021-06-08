@@ -93,12 +93,12 @@ public class MapReducer {
         Pair<String, Integer> currentMax;
 
         @Override
-        protected void setup(Context context) throws IOException, InterruptedException {
+        protected void setup(Context context) {
             currentMax = new Pair<>("temp", -1);
         }
 
         @Override
-        protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+        protected void map(LongWritable key, Text value, Context context) {
 
             String line = value.toString();
             String word;
@@ -128,12 +128,12 @@ public class MapReducer {
         Pair<String, Integer> currentMax;
 
         @Override
-        protected void setup(Context context) throws IOException, InterruptedException {
+        protected void setup(Context context) {
             currentMax = new Pair<>("temp", -1);
         }
 
         @Override
-        protected void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
+        protected void reduce(Text key, Iterable<IntWritable> values, Context context) {
 
             String word = key.toString();
             int count = 0;
@@ -165,13 +165,13 @@ public class MapReducer {
         double sum;
 
         @Override
-        protected void setup(Context context) throws IOException, InterruptedException {
+        protected void setup(Context context) {
             count = 0;
             sum = 0;
         }
 
         @Override
-        protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+        protected void map(LongWritable key, Text value, Context context) {
 
             String line = value.toString();
             StringTokenizer tokenizer = new StringTokenizer(line);
@@ -193,13 +193,13 @@ public class MapReducer {
         double sum;
 
         @Override
-        protected void setup(Context context) throws IOException, InterruptedException {
+        protected void setup(Context context) {
             count = 0;
             sum = 0;
         }
 
         @Override
-        protected void reduce(Text key, Iterable<DoubleWritable> values, Context context) throws IOException, InterruptedException {
+        protected void reduce(Text key, Iterable<DoubleWritable> values, Context context) {
 
             // file has ([count], [sum]) format
             count += Double.parseDouble(key.toString());
@@ -226,7 +226,7 @@ public class MapReducer {
         private double m2; // total sum of squares of differences
 
         @Override
-        protected void setup(Context context) throws IOException, InterruptedException {
+        protected void setup(Context context) {
             size = 0;
             mean = 0;
             m2 = 0;
@@ -237,7 +237,7 @@ public class MapReducer {
          * the mean and the sum of squares of differences has found by single loop
          */
         @Override
-        protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+        protected void map(LongWritable key, Text value, Context context) {
 
             String line = value.toString();
             String count;
@@ -273,7 +273,7 @@ public class MapReducer {
         double m2;
 
         @Override
-        protected void setup(Context context) throws IOException, InterruptedException {
+        protected void setup(Context context) {
             size = 0;
             mean = 0;
             m2 = 0;
@@ -284,7 +284,7 @@ public class MapReducer {
          * https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Parallel_algorithm
          */
         @Override
-        protected void reduce(Text key, Iterable<CustomWritables.StdevWritable> values, Context context) throws IOException, InterruptedException {
+        protected void reduce(Text key, Iterable<CustomWritables.StdevWritable> values, Context context) {
 
             double delta;
             double newSize;
@@ -307,18 +307,7 @@ public class MapReducer {
     /**
      * uses output of ReduceCount as an input
      */
-    static class MapMedian extends Mapper<LongWritable, Text, Text, CustomWritables.MedianWritable> {
-
-        private HashMap<Long, Long> frequencies;
-        private int pairCount;
-        private int wordCount;
-
-        @Override
-        protected void setup(Context context) throws IOException, InterruptedException {
-            frequencies = new HashMap<>();
-            pairCount = 0;
-            wordCount = 0;
-        }
+    static class MapMedian extends Mapper<LongWritable, Text, Text, LongWritable> {
 
         @Override
         protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
@@ -329,42 +318,23 @@ public class MapReducer {
             StringTokenizer tokenizer = new StringTokenizer(line);
             tokenizer.nextToken(); // first element of line is key (word) and it does not needed for counting median
             count = tokenizer.nextToken();
+
             long x = Long.parseLong(count);
 
             x = (long) ((x/100.)*100);
+            count = String.valueOf(x);
 
-            if (frequencies.containsKey(x)) {
-                long old = frequencies.get(x);
-                frequencies.put(x, old + 1);
-            } else {
-                frequencies.put(x, 1L);
-                pairCount++;
-            }
-
-            wordCount += x;
-        }
-
-        @Override
-        protected void cleanup(Context context) throws IOException, InterruptedException {
-            CustomWritables.MedianWritable medianWritable = new CustomWritables.MedianWritable(
-                    new LongWritable(pairCount), new LongWritable(wordCount));
-            for (Map.Entry<Long, Long> entry : frequencies.entrySet()) {
-                medianWritable.addPair(entry.getKey(), entry.getValue());
-            }
-            context.write(new Text("key"), medianWritable);
+            context.write(new Text(count), new LongWritable(1));
         }
     }
 
-    static class ReduceMedian extends Reducer<Text, CustomWritables.MedianWritable, Text, LongWritable> {
+    static class ReduceMedian extends Reducer<Text, LongWritable, Text, LongWritable> {
 
-        private long pairCount;
-        private long wordCount;
+        public static long wordCount = -1;
         private Map<Long, Long> frequencies;
 
         @Override
-        protected void setup(Context context) throws IOException, InterruptedException {
-            pairCount = 0;
-            wordCount = 0;
+        protected void setup(Context context) {
             frequencies = new TreeMap<>(); // always sorted by key
         }
 
@@ -378,15 +348,16 @@ public class MapReducer {
         }
 
         @Override
-        protected void reduce(Text key, Iterable<CustomWritables.MedianWritable> values, Context context) throws IOException, InterruptedException {
-            for (CustomWritables.MedianWritable value : values) {
-                pairCount += value.getPairCount().get();
-                wordCount += value.getTotalWord().get();
-                ArrayList<Pair<LongWritable, LongWritable>> pairs = value.getFrequencies();
-                for (Pair<LongWritable, LongWritable> pair : pairs) {
-                    putToMap(pair.getKey().get(), pair.getValue().get());
-                }
+        protected void reduce(Text key, Iterable<LongWritable> values, Context context) {
+
+            long x = Long.parseLong(key.toString());
+            long count = 0;
+
+            for (LongWritable value : values) {
+                count += value.get();
             }
+
+            putToMap(x, count);
         }
 
         @Override
@@ -398,7 +369,7 @@ public class MapReducer {
             ArrayList<Map.Entry<Long, Long>> frequencyList = new ArrayList<>(frequencies.entrySet());
 
             while (passedWord < medianIndex) {
-                passedWord += frequencyList.get(currentIndex).getKey() * frequencyList.get(currentIndex).getValue();
+                passedWord += frequencyList.get(currentIndex).getValue();
                 if (passedWord > medianIndex) {
                     currentIndex--;
                 }
@@ -437,6 +408,7 @@ public class MapReducer {
             for (LongWritable value : values) {
                 sum += value.get();
             }
+            ReduceMedian.wordCount = sum;
             context.write(key, new LongWritable(sum));
         }
     }
