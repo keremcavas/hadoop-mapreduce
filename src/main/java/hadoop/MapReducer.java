@@ -363,10 +363,17 @@ public class MapReducer {
         @Override
         protected void cleanup(Context context) throws IOException, InterruptedException {
 
-            final long medianIndex = wordCount / 2;
+            long medianIndex;
             int currentIndex = 0;
             long passedWord = 0;
             ArrayList<Map.Entry<Long, Long>> frequencyList = new ArrayList<>(frequencies.entrySet());
+
+            long wordCount2 = 0;
+            for (Map.Entry<Long, Long> longLongEntry : frequencyList) {
+                wordCount2 += longLongEntry.getValue();
+            }
+
+            medianIndex = wordCount2 / 2;
 
             while (passedWord < medianIndex) {
                 passedWord += frequencyList.get(currentIndex).getValue();
