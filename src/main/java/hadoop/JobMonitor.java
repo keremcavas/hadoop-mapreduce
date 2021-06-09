@@ -44,7 +44,7 @@ public class JobMonitor {
                             timer.purge();
 
                             uiTrigger.push(new JobTrackerResult(JobTrackerResult.APPEND, "map progress: 100%  " +
-                                    "-  reeduce progress: 100%"));
+                                    "-  reduce progress: 100%"));
                         }
 
                         uiTrigger.push(new JobTrackerResult(JobTrackerResult.REFRESH,
@@ -56,7 +56,7 @@ public class JobMonitor {
                         timer.purge();
 
                         uiTrigger.push(new JobTrackerResult(JobTrackerResult.APPEND, "map progress: 100%  " +
-                                "-  reeduce progress: 100%"));
+                                "-  reduce progress: 100%"));
                     } else if (job.getJobState() == JobStatus.State.FAILED ||
                             job.getJobState() == JobStatus.State.KILLED) {
                         timer.cancel();
