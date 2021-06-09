@@ -8,7 +8,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 public class ButtonActionListener implements ActionListener {
 
@@ -32,12 +31,13 @@ public class ButtonActionListener implements ActionListener {
 
         String command = e.getActionCommand();
 
-        HadoopController hadoopController = null;
+        HadoopController hadoopController;
         try {
             hadoopController = new HadoopController();
         } catch (IOException ioException) {
             pushMessage("HDFS => Can't create FileSystem");
             ioException.printStackTrace();
+            return;
         }
 
         switch (command) {

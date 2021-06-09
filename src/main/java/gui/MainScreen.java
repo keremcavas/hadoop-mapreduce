@@ -145,7 +145,7 @@ public class MainScreen {
         setMainPanel(frame);
 
         JLabel label = new JLabel("<html><div style='text-align: center;color: green;font-weight: 100;'>" +
-                "keremCAVAS@ytuCE 2021</div></html>", SwingConstants.CENTER);
+                "keremCAVAS@yildizCE 2021</div></html>", SwingConstants.CENTER);
         frame.add(label, BorderLayout.SOUTH);
 
         frame.setVisible(true);

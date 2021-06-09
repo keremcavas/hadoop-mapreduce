@@ -2,8 +2,8 @@ package utility;
 
 public class Pair<A, B> {
 
-    private A key;
-    private B value;
+    private final A key;
+    private final B value;
 
     public Pair(A key, B value) {
         this.key = key;
@@ -14,15 +14,8 @@ public class Pair<A, B> {
         return key;
     }
 
-    public void setKey(A key) {
-        this.key = key;
-    }
-
     public B getValue() {
         return value;
     }
 
-    public void setValue(B value) {
-        this.value = value;
-    }
 }
