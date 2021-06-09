@@ -59,6 +59,10 @@ public class HadoopController {
 
         Path inputPath = new Path(HDFS_FILE_DIRECTORY + "/mapreduce-input");
 
+        if (hdfs.exists(inputPath)) {
+            hdfs.delete(inputPath, true);
+        }
+
         // add selected file to hdfs
         FileUtil.copy(
                 source,
